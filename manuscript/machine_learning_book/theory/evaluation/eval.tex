@@ -1,0 +1,33 @@
+\ifx\mlbook\undefined
+    \documentclass[10pt,a4paper]{ctexbook}
+    \providecommand{\pathroot}{../..}
+
+    \usepackage[CJKbookmarks,colorlinks,linkcolor=red]{hyperref}
+    \usepackage{geometry}
+    \usepackage{amsmath}
+
+    \geometry{left=3.0cm,right=3.0cm,top=2.5cm,bottom=2.5cm}
+    \setmainfont{SimSun}
+    \XeTeXlinebreaklocale "zh"
+    \XeTeXlinebreakskip = 0pt plus 1pt minus 0.1pt
+
+    \begin{document}
+    \setlength{\baselineskip}{20pt}
+    \title{评估指标}
+    \author{Donald Cheung\\jianzhang9102@gmail.com}
+    \date{Sep 13, 2017}
+    \maketitle
+    \tableofcontents
+\fi
+
+\chapter{评估指标}
+
+\section{准确率}
+\section{召回率}
+\section{F值}
+\section{AUC}
+\section{BLEU}
+
+\ifx\mlbook\undefined
+    \end{document}
+\fi

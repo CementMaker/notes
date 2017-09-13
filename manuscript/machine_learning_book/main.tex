@@ -1,0 +1,63 @@
+\documentclass[UTF8,10pt,a4paper]{ctexbook}
+\def\mlbook{}
+\providecommand{\pathroot}{.}
+\usepackage{minted}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{CJK,CJKnumb}
+
+\usepackage{fontspec}
+\usepackage{geometry}
+\geometry{left=3.0cm,right=3.0cm,top=2.5cm,bottom=2.5cm}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{animate}
+\usepackage[CJKbookmarks,colorlinks,linkcolor=red]{hyperref}
+\usepackage{float}
+
+\setmainfont{Times New Roman}
+\XeTeXlinebreaklocale "zh"
+\XeTeXlinebreakskip = 0pt plus 1pt minus 0.1pt
+
+\setlength{\baselineskip}{20pt}
+
+\title{机器学习}
+\author{Donald Cheung\thanks{corresponding author}\\jianzhang9102@gmail.com \and
+        AMANI\\1021129753@qq.com}
+\date{\today\footnote{文档创建于2017年6月16日}}
+
+\begin{document}
+%\maketitle
+\tableofcontents
+
+\part{机器学习理论基础}
+\include{introduction/intro}
+\include{theory/foundation/fd}
+\include{theory/lr/lr}
+\include{theory/neural_networks/nn}
+\include{theory/ltr/ltr}
+\include{theory/evaluation/eval}
+
+
+\part{机器学习的工具}
+\chapter{sklearn}
+\chapter{Tensorflow}
+\chapter{Paddle}
+\chapter{Xgboost}
+\chapter{LightGBM}
+\chapter{Xapian}
+\chapter{Elasticsearch}
+
+
+\part{机器学习相关应用}
+\chapter{自然语言处理}
+\chapter{计算机视觉}
+
+
+\part{机器学习实战}
+\chapter{手写体识别}
+\chapter{Quora Question Pairs}
+\chapter{KDD CUP 2012}
+\chapter{腾讯广告CTR预估}
+
+\end{document} 

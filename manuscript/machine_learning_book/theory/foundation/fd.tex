@@ -1,0 +1,65 @@
+\ifx\mlbook\undefined
+    \documentclass[10pt,a4paper]{ctexbook}
+    \providecommand{\pathroot}{../..}
+
+    \usepackage[CJKbookmarks,colorlinks,linkcolor=red]{hyperref}
+    \usepackage{geometry}
+    \usepackage{amsmath}
+
+    \geometry{left=3.0cm,right=3.0cm,top=2.5cm,bottom=2.5cm}
+    \setmainfont{SimSun}
+    \XeTeXlinebreaklocale "zh"
+    \XeTeXlinebreakskip = 0pt plus 1pt minus 0.1pt
+
+    \begin{document}
+    \setlength{\baselineskip}{20pt}
+    \title{Logistic回归}
+    \author{Donald Cheung\\jianzhang9102@gmail.com}
+    \date{Sep 8, 2017}
+    \maketitle
+    \tableofcontents
+\fi
+
+\chapter{数学基础}
+\section{梯度下降法}
+这一节用来介绍常用的数学优化算法--梯度下降法，以及相关变形。
+\href{An overview of gradient descent optimization algorithms}{https://arxiv.org/abs/1609.04747}
+
+\href{http://ruder.io/optimizing-gradient-descent}{An overview of gradient descent optimization algorithms}
+
+\href{https://www.analyticsvidhya.com/blog/2017/03/introduction-to-gradient-descent-algorithm-along-its-variants/}{Introduction to Gradient Descent Algorithm (along with variants) in Machine Learning
+}
+
+\subsection{Gradient descent variants}
+\subsubsection{Batch gradient descent}
+\subsubsection{Stochastic gradient descent}
+\subsubsection{Mini-batch gradient descent}
+
+\subsection{Gradient descent optimization algorithms}
+\subsubsection{Momentum}
+\subsubsection{Nesterov accelerated gradient}
+\subsubsection{Adagrad}
+\subsubsection{Adadelta}
+\subsubsection{RMSprop}
+\subsubsection{Adam}
+\subsubsection{AdaMax}
+\subsubsection{Nadam}
+\subsubsection{Visualization of algorithms}
+\subsubsection{Which optimizer to choose?}
+
+\subsection{Parallelizing and distributing SGD}
+\subsubsection{Hogwild!}
+\subsubsection{Downpour SGD}
+\subsubsection{Delay-tolerant Algorithms for SGD}
+\subsubsection{TensorFlow}
+\subsubsection{Elastic Averaging SGD}
+
+\subsection{Additional strategies for optimizing SGD}
+\subsubsection{Shuffling and Curriculum Learning}
+\subsubsection{Batch normalization}
+\subsubsection{Early Stopping}
+\subsubsection{Gradient noise}
+
+\ifx\mlbook\undefined
+    \end{document}
+\fi
