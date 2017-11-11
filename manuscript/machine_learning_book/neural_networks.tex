@@ -1,30 +1,10 @@
-\ifx\mlbook\undefined
-    \documentclass[10pt,a4paper]{ctexbook}
-    \providecommand{\pathroot}{../..}
-
-    %\usepackage[CJKbookmarks,colorlinks,linkcolor=red]{hyperref}
-    %\usepackage{minted}
-    %\usepackage{geometry}
-    %\usepackage{amsmath}
-    %\usepackage{CJK,CJKnumb}
-    %\usepackage{fontspec}
-    %\usepackage[table, x11names]{xcolor}
-    %\usepackage{array, booktabs, boldline}
-    %\usepackage{cellspace}
-    %\usepackage{float}
-    %\setlength\cellspacetoplimit{4pt}
-    %\setlength\cellspacebottomlimit{4pt}
-
-    %\geometry{left=3.0cm,right=3.0cm,top=2.5cm,bottom=2.5cm}
-    %\setmainfont{SimSun}
-    %\XeTeXlinebreaklocale "zh"
-    %\XeTeXlinebreakskip = 0pt plus 1pt minus 0.1pt
-    %\setlength{\baselineskip}{20pt}
-
+%\documentclass[11pt,a4paper]{article}
+%\documentclass[UTF8,11pt,a4paper]{ctexart}
+%\documentclass[UTF8,11pt,a4paper]{book}
+\documentclass[UTF8,10pt,a4paper]{ctexbook}
 \usepackage{minted}
 \usepackage{amsfonts}
 \usepackage{amsmath}
-\usepackage{CJK,CJKnumb}
 
 \usepackage{fontspec}
 \usepackage{geometry}
@@ -33,40 +13,54 @@
 \usepackage{graphicx}
 \usepackage{animate}
 \usepackage[CJKbookmarks,colorlinks,linkcolor=red]{hyperref}
+
 \usepackage{float}
 
-\usepackage[table, x11names]{xcolor}
-\usepackage{array, booktabs, boldline}
-\usepackage{cellspace}
-\setlength\cellspacetoplimit{4pt}
-\setlength\cellspacebottomlimit{4pt}
+%\usepackage{xunicode}
+%\usepackage{xltxtra}
+%\usepackage{indentfirst}
 
-%\setmainfont{Times New Roman}
-\setmainfont{SimSun}
+%\setromanfont{LiHei Pro}
+%\setromanfont{SongTi}
+%\setmonofont{Courier New}
+%\setromanfont{SimSun}
+\setmainfont{Times New Roman}
+%\setmainfont{SimSun}
 \XeTeXlinebreaklocale "zh"
+%\XeTeXlinebreakskip = 0pt plus 1pt
 \XeTeXlinebreakskip = 0pt plus 1pt minus 0.1pt
 
 \setlength{\baselineskip}{20pt}
 
+\title{机器学习}
+\author{Donald Cheung\thanks{corresponding author}\\jianzhang9102@gmail.com \and
+        AMANI\\1021129753@qq.com}
+\date{Jun 16, 2017} %\date{\today}
+
+\begin{document}
+%\maketitle
+\tableofcontents
+
+\part{机器学习理论基础}
+
+\chapter{Logistic回归}
 
 
-    \title{神经网络}
-    \author{Donald Cheung\\jianzhang9102@gmail.com}
-    \date{Sep 8, 2017}
+\part{机器学习的工具}
+\chapter{Tensorflow}
+\chapter{Paddle}
+\chapter{Xgoost}
+\chapter{LightGBM}
 
-    \begin{document}
-    \maketitle
-    \tableofcontents
-\fi
+\part{机器学习相关应用}
 
-\chapter{神经网络}
+\chapter{神经网络理论基础}
+\section{FNN}
 
-There are a number of notable players in the deep learning space. On the academic side, the Geoffrey Hinton's lab at University of Toronto, Yann LeCun's group at New York University and Stanford's AI lab are some of the major leaders in deep learning research. On the private side, Google has led the way in applying deep learning to search and computer vision, and Baidu's Chief Scientist, Andrew Ng, is a major contributor to the scientific literature around deep learning on top of being the cofounder of Coursera.
-
-
-\section{前馈神经网络}
 Backpropagation Algorithm(BP算法)
+
 \href{https://machinelearningmastery.com/implement-backpropagation-algorithm-scratch-python/}{How to Implement the Backpropagation Algorithm From Scratch In Python}
+
 
 \section{RNN}
 RNN理论基础，包括历史、类别、训练算法等。
@@ -121,7 +115,7 @@ $y(t)$ & output layer & $k$ \\
 \label{tab:rnn-notations}
 \end{table}
 
-%\inputminted{python}{\pathroot/reference/code/bptt.py}
+\inputminted{python}{reference/code/bptt.py}
 
 \begin{minted}[mathescape,
                linenos,
@@ -164,32 +158,47 @@ $y(t)$ & output layer & $k$ \\
 \subsection{sigmoid}
 \subsection{softmax}
 \subsection{tanh}
-
 \subsection{ReLU}
-
-Wikipedia: \href{https://en.wikipedia.org/wiki/Rectifier_(neural_networks)}{Rectifier (neural networks)}（有很多参考文献）
-
-In the context of artificial neural networks, the rectifier is an activation function defined as:
-\[
-    f(x)=\max(0, x)
-\]
-where x is the input to a neuron. This is also known as a ramp function and is analogous to half-wave rectification in electrical engineering. This activation function was first introduced to a dynamical network by Hahnloser et al. in a 2000 paper in Nature with strong biological motivations and mathematical justifications. It has been used in \href{http://jmlr.org/proceedings/papers/v15/glorot11a/glorot11a.pdf}{convolutional networks} more effectively than the widely used logistic sigmoid (which is inspired by probability theory; see logistic regression) and its more practical counterpart, the hyperbolic tangent. The rectifier is, as of 2015, the most popular activation function for deep neural networks.
-
-A unit employing the rectifier is also called a rectified linear unit (ReLU).
-
-A smooth approximation to the rectifier is the analytic function
-\[
-f(x)=\ln(1+e^{x}),
-\]
-which is called the softplus function. The derivative of softplus is $f'(x)=e^{x}/(e^{x}+1)=1/(1+e^{-x})$, i.e. the logistic function.
-
-Rectified linear units find applications in computer vision and speech recognition using deep neural nets.
-
 
 \section{常用损失函数}
 \subsection{交叉熵}
 
 $L(y,o)=-\frac{1}{N}\sum\limits_{n \in N}{y_{n}\log{o_{n}}}$
+
+
+\chapter{自然语言处理}
+\subsection{Word Embedding}
+
+\subsection{语言模型}
+\begin{itemize}
+\item \href{http://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf}{A Neural Probabilistic Language Model}
+\item \href{https://arxiv.org/pdf/1708.02657.pdf}{Which Encoding is the Best for Text Classification in Chinese, English, Japanese and Korean?}
+\end{itemize}
+
+\subsubsection{相关文献}
+
+
+
+\subsection{文本分类}
+\subsection{机器翻译}
+\subsection{序列标注}
+
+\subsection{学习资料}
+Course notes for CS224N Winter17: \url{https://github.com/stanfordnlp/cs224n-winter17-notes}
+
+
+\chapter{计算机视觉}
+
+\section{CTC(connectionist Temporal Classification,连接时序分类)}
+
+\section{Papers}
+\begin{itemize}
+\item \href{The 9 Deep Learning Papers You Need To Know About (Understanding CNNs Part 3)}{https://adeshpande3.github.io/adeshpande3.github.io/The-9-Deep-Learning-Papers-You-Need-To-Know-About.html}
+\end{itemize}
+
+
+
+
 
 \section{RNN技术综述}
 
@@ -285,6 +294,7 @@ What's amazing is that essentially all of the papers above were published in the
 %[15] Zhang, X., Zhao, J., & LeCun, Y. (2015). Character-level Convolutional Networks for Text Classification, 1–9.
 %[16] Zhang, X., & LeCun, Y. (2015). Text Understanding from Scratch. arXiv E-Prints, 3, 011102.
 %[17] Kim, Y., Jernite, Y., Sontag, D., & Rush, A. M. (2015). Character-Aware Neural Language Models.
+
 
 \section{RNN应用}
 
@@ -669,7 +679,7 @@ Machine Translation is similar to language modeling in that our input is a seque
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[scale=0.3]{\pathroot/reference/pictures/rnn_machine_translation.png}
+    \includegraphics[scale=0.3]{reference/pictures/rnn_machine_translation.png}
     \caption{RNN for machine Translation}
     \label{fig:rnn_machine_translation}
 \end{figure}
@@ -697,7 +707,7 @@ Together with convolutional Neural Networks, RNNs have been used as part of a mo
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[scale=0.3]{\pathroot/reference/pictures/rnn_image_notation.png}
+    \includegraphics[scale=0.3]{reference/pictures/rnn_image_notation.png}
     \caption{RNN for Generating Image Descriptions}
     \label{fig:rnn_image_notation}
 \end{figure}
@@ -791,7 +801,7 @@ The Fine Print: I write these notes sometimes hastily, and thus they might not a
 Seq2seq 模型由文章[5]为解决机器翻译问题提出，其中基本结构可以由图\ref{fig:sutskever_seq2seq}概括。
 \begin{figure}[ht]
     \centering
-    \includegraphics[scale=0.6]{\pathroot/reference/pictures/seq2seq_Sutskever.png}
+    \includegraphics[scale=0.6]{reference/pictures/seq2seq_Sutskever.png}
     \caption{Sutskever Seq2Seq Model}
     \label{fig:sutskever_seq2seq}
 \end{figure}
@@ -997,62 +1007,17 @@ $<s, a, r, s'>$
 \subsection{Paddle}
 百度wiki：\href{http://wiki.baidu.com/pages/viewpage.action?pageId=38550738}{Paddle代码帮助}
 
-\subsection{工程}
-\href{http://ruder.io/multi-task/index.html}{An Overview of Multi-Task Learning in Deep Neural Networks}
-
 \subsection{Vowpal Wabbit}
 \href{https://github.com/JohnLangford/vowpal_wabbit}{Vowpal Wabbit}
 \\Vowpal Wabbit is a machine learning system which pushes the frontier of machine learning with techniques such as online, hashing, allreduce, reductions, learning2search, active, and interactive learning.
 
-\section{CTC(connectionist Temporal Classification,连接时序分类)}
 
-\section{Papers}
-\begin{itemize}
-\item \href{The 9 Deep Learning Papers You Need To Know About (Understanding CNNs Part 3)}{https://adeshpande3.github.io/adeshpande3.github.io/The-9-Deep-Learning-Papers-You-Need-To-Know-About.html}
-\end{itemize}
+\section{工具}
+\subsection{Xapian}
+\subsection{Elasticsearch}
 
+\chapter{Learning To Rank}
+\href{https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/MSR-TR-2010-82.pdf}{From RankNet to LambdaRank to LambdaMART: An Overview}
 
-\section{dropout}
-\href{https://www.cs.toronto.edu/~hinton/absps/JMLRdropout.pdf}{Dropout: A Simple Way to Prevent Neural Networks from Overfitting}
+\end{document} 
 
-
-\section{学习资料}
-
-\subsection{个人主页}
-\begin{enumerate}
-\item \href{http://www.cs.toronto.edu/~hinton/}{Geoffrey E. Hinton}
-\end{enumerate}
-
-
-\subsection{博客}
-\begin{enumerate}
-\item WILDML: \url{http://www.wildml.com}
-\end{enumerate}
-
-\subsection{课程}
-
-\begin{enumerate}
-\item Fei-Fei Li: \href{http://cs231n.stanford.edu}{CS231n: Convolutional Neural Networks for Visual Recognition}
-
-\item Geoffrey Hinton: \href{https://www.coursera.org/learn/neural-networks}{Neural Networks for Machine Learning}
-
-\end{enumerate}
-
-
-
-
-\subsection{资料}
-\begin{enumerate}
-\item \href{http://blog.deepgram.com/how-to-get-a-job-in-deep-learning/}{How to Get a Job In Deep Learning}\\
-这篇文章介绍了很多学习深度学习的资料，都很不错，可以作为一个资料集去查询。
-
-\item \href{http://www.teglor.com/b/deep-learning-libraries-language-cm569/}{Deep Learning Libraries by Language}\\
-这篇文章介绍了不同语言实现的深度学习相关的工具，可以作为工具查询。
-
-\end{enumerate}
-
-
-
-\ifx\mlbook\undefined
-    \end{document}
-\fi

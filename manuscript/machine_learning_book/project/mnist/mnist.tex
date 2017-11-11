@@ -1,0 +1,68 @@
+\ifx\mlbook\undefined
+    \documentclass[10pt,a4paper]{ctexbook}
+    \providecommand{\pathroot}{../..}
+
+    \usepackage[CJKbookmarks,colorlinks,linkcolor=red]{hyperref}
+    \usepackage{geometry}
+    \usepackage{amsmath}
+    \usepackage{float}
+
+    \geometry{left=3.0cm,right=3.0cm,top=2.5cm,bottom=2.5cm}
+    \setmainfont{SimSun}
+    \XeTeXlinebreaklocale "zh"
+    \XeTeXlinebreakskip = 0pt plus 1pt minus 0.1pt
+
+    \usepackage[table, x11names]{xcolor}
+    \usepackage{array, booktabs, boldline}
+    \usepackage{cellspace}
+    \setlength\cellspacetoplimit{4pt}
+    \setlength\cellspacebottomlimit{4pt}
+
+    \begin{document}
+    \setlength{\baselineskip}{20pt}
+    \title{MNIST数据集}
+    \author{Donald Cheung\\jianzhang9102@gmail.com}
+    \date{Sep 22, 2017}
+    %\maketitle
+    \tableofcontents
+\fi
+
+\chapter{MNIST数据集}
+\section{数据集介绍}
+MNIST数据集是NIST数据集的一个子集，它包含了6000张图片作为训练数据，10000张图片作为测试数据。在MNIST数据集中的每一张图片都代表了0$\sim$9中的一个数字。
+图片的大小都为28x28，且数字都会出现在图片的正中间。图\ref{fig:mnist_matrix}展示了一张数字及其所对应的像素矩阵。
+\begin{figure}[ht]
+    \centering
+    \includegraphics[scale=0.4]{\pathroot/project/mnist/images/MNIST-Matrix.png}
+    \caption{数字图片及其像素矩阵}
+    \label{fig:mnist_matrix}
+\end{figure}
+
+在图\ref{fig:mnist_matrix}的左侧显示了一张数字1的图片，而右侧显示了这个图片所对应的像素矩阵。在Yann LeCun教授的网站中（\url{http://yann.lecun.com/exdb/mnist}）对MNIST数据集做出了详细的介绍。
+MNIST数据集提供了4个下载文件，表\ref{table:mnist_data_url}归纳了下载文件中提供的内容。
+\begin{table}[!htb]
+\caption{MNIST数据下载地址和内容}
+\label{table:mnist_data_url}
+\centering
+\begin{tabular}{|Sc|c|c|}
+\hlineB{2}
+\rowcolor{SeaGreen3!30!} \textbf{网址} & \textbf{内容} \\
+\hlineB{1.5}
+http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz & 训练数据图片 \\
+\hlineB{1.5}
+http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz & 训练数据答案 \\
+\hlineB{1.5}
+http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz & 测试数据图片\\
+\hlineB{1.5}
+http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz & 测试数据答案 \\
+\hlineB{1.5}
+\hlineB{2}
+\end{tabular}
+\end{table}
+
+虽然这个数据集只提供了训练和测试数据，但是为了验证模型训练的效果，一般会从训练数据中划分出一部分数据作为验证（validation）数据。
+
+
+\ifx\mlbook\undefined
+    \end{document}
+\fi

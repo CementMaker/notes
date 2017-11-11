@@ -1,0 +1,758 @@
+\ifx\mlbook\undefined
+    \documentclass[10pt,a4paper]{ctexbook}
+    \providecommand{\pathroot}{../..}
+
+    \usepackage[CJKbookmarks,colorlinks,linkcolor=red]{hyperref}
+    \usepackage{geometry}
+    \usepackage{amsmath}
+    \usepackage{float}
+    \usepackage{minted}
+
+    \geometry{left=3.0cm,right=3.0cm,top=2.5cm,bottom=2.5cm}
+    \setmainfont{SimSun}
+    \XeTeXlinebreaklocale "zh"
+    \XeTeXlinebreakskip = 0pt plus 1pt minus 0.1pt
+
+    \usepackage[table, x11names]{xcolor}
+    \usepackage{array, booktabs, boldline}
+    \usepackage{cellspace}
+    \setlength\cellspacetoplimit{4pt}
+    \setlength\cellspacebottomlimit{4pt}
+
+    \begin{document}
+    \setlength{\baselineskip}{20pt}
+    \title{实战基础}
+    \author{Donald Cheung\\jianzhang9102@gmail.com}
+    \date{Nov 7, 2017}
+    %\maketitle
+    \tableofcontents
+\fi
+
+\chapter{实战基础}
+\section{特征表示}
+
+\subsection{One-Hot}
+在很多机器学习任务中，特征并不总是连续值，而有可能是分类值。
+
+例如，考虑一下的三个特征：
+
+["male", "female"]
+
+["from Europe", "from US", "from Asia"]
+
+["uses Firefox", "uses Chrome", "uses Safari", "uses Internet Explorer"]
+
+如果将上述特征用数字表示，效率会高很多。例如：
+
+["male", "from US", "uses Internet Explorer"] 表示为[0, 1, 3]
+
+["female", "from Asia", "uses Chrome"]表示为[1, 2, 1]
+
+但是，即使转化为数字表示后，上述数据也不能直接用在我们的分类器中。因为，分类器往往默认数据数据是连续的，并且是有序的。但是，按照我们上述的表示，数字并不是有序的，而是随机分配的。
+
+为了解决上述问题，其中一种可能的解决方法是采用独热编码（One-Hot Encoding）。
+
+独热编码即 One-Hot 编码，又称一位有效编码，其方法是使用N位状态寄存器来对N个状态进行编码，每个状态都由他独立的寄存器位，并且在任意时候，其中只有一位有效。
+例如：
+
+自然状态码为：000,001,010,011,100,101
+独热编码为：000001,000010,000100,001000,010000,100000
+
+可以这样理解，对于每一个特征，如果它有m个可能值，那么经过独热编码后，就变成了m个二元特征。并且，这些特征互斥，每次只有一个激活。因此，数据会变成稀疏的。
+这样做的好处主要有：
+
+解决了分类器不好处理属性数据的问题
+
+在一定程度上也起到了扩充特征的作用
+
+\begin{minted}[mathescape,
+              linenos,
+              numbersep=5pt,
+              frame=lines,
+              framesep=2mm]{python}
+from sklearn import preprocessing
+enc = preprocessing.OneHotEncoder()
+
+enc.fit([[0, 0, 3], [1, 1, 0], [0, 2, 1], [1, 0, 2]])
+
+enc.transform([[0, 1, 3]]).toarray()
+#输出结果：
+#array([[ 1.,  0.,  0.,  1.,  0.,  0.,  0.,  0.,  1.]])
+\end{minted}
+
+处理离散型特征和连续型特征并存的情况，如何做归一化。
+
+参考博客进行了总结：
+\href{https://www.quora.com/What-are-good-ways-to-handle-discrete-and-continuous-inputs-together}{What are good ways to handle discrete and continuous inputs together?}
+
+总结如下：
+\begin{enumerate}
+\item 拿到获取的原始特征，必须对每一特征分别进行归一化，比如，特征A的取值范围是[-1000,1000]，特征B的取值范围是[-1,1].
+
+如果使用logistic回归，$w_{1}*x_{1}+w_{2}*x_{2}$，因为$x_{1}$的取值太大了，所以$x_{2}$基本起不了作用。
+
+所以，必须进行特征的归一化，每个特征都单独进行归一化。
+
+\item 连续型特征归一化的常用方法：
+    \begin{enumerate}
+    \item Rescale bounded continuous features: All continuous input that are bounded, rescale them to [-1, 1] through $x = \frac{2x - \max - \min}{\max - \min}$.线性放缩到[-1,1]
+    \item Standardize all continuous features: All continuous input should be standardized and by this I mean, for every continuous feature, compute its mean ($\mu$) and standard deviation ($s$) and do $x=\frac{x - \mu}{s}$.放缩到均值为0，方差为1
+    \end{enumerate}
+
+\item 离散型特征的处理方法：
+
+Binarize categorical/discrete features: For all categorical features, represent them as multiple boolean features. For example, instead of having one feature called marriage\_status, have 3 boolean features - married\_status\_single, married\_status\_married, married\_status\_divorced and appropriately set these features to 1 or -1. As you can see, for every categorical feature, you are adding k binary feature where k is the number of values that the categorical feature takes.对于离散的特征基本就是按照one-hot编码，该离散特征有多少取值，就用多少维来表示该特征。
+\end{enumerate}
+
+为什么使用one-hot编码来处理离散型特征，这是有理由的，不是随便拍脑袋想出来的！！！具体原因，分下面几点来阐述： 
+\begin{enumerate}
+\item Why do we binarize categorical features?
+
+We binarize the categorical input so that they can be thought of as a vector from the Euclidean space (we call this as embedding the vector in the Euclidean space).使用one-hot编码，将离散特征的取值扩展到了欧式空间，离散特征的某个取值就对应欧式空间的某个点。
+ 
+\item Why do we embed the feature vectors in the Euclidean space?
+
+Because many algorithms for classification/regression/clustering etc. requires computing distances between features or similarities between features. And many definitions of distances and similarities are defined over features in Euclidean space. So, we would like our features to lie in the Euclidean space as well.将离散特征通过one-hot编码映射到欧式空间，是因为，在回归，分类，聚类等机器学习算法中，特征之间距离的计算或相似度的计算是非常重要的，而我们常用的距离或相似度的计算都是在欧式空间的相似度计算，计算余弦相似性，基于的就是欧式空间。
+
+\item Why does embedding the feature vector in Euclidean space require us to binarize categorical features?
+
+Let us take an example of a dataset with just one feature (say job\_type as per your example) and let us say it takes three values 1,2,3.
+
+Now, let us take three feature vectors x\_1 = (1), x\_2 = (2), x\_3 = (3). What is the euclidean distance between x\_1 and x\_2, x\_2 and x\_3 \& x\_1 and x\_3? d(x\_1, x\_2) = 1, d(x\_2, x\_3) = 1, d(x\_1, x\_3) = 2. This shows that distance between job type 1 and job type 2 is smaller than job type 1 and job type 3. Does this make sense? Can we even rationally define a proper distance between different job types? In many cases of categorical features, we can properly define distance between different values that the categorical feature takes. In such cases, isn't it fair to assume that all categorical features are equally far away from each other?
+
+Now, let us see what happens when we binary the same feature vectors. Then, x\_1 = (1, 0, 0), x\_2 = (0, 1, 0), x\_3 = (0, 0, 1). Now, what are the distances between them? They are sqrt(2). So, essentially, when we binarize the input, we implicitly state that all values of the categorical features are equally away from each other.
+
+将离散型特征使用one-hot编码，确实会让特征之间的距离计算更加合理。比如，有一个离散型特征，代表工作类型，该离散型特征，共有三个取值，不使用one-hot编码，其表示分别是x\_1 = (1), x\_2 = (2), x\_3 = (3)。两个工作之间的距离是，(x\_1, x\_2) = 1, d(x\_2, x\_3) = 1, d(x\_1, x\_3) = 2。那么x\_1和x\_3工作之间就越不相似吗？显然这样的表示，计算出来的特征的距离是不合理。那如果使用one-hot编码，则得到x\_1 = (1, 0, 0), x\_2 = (0, 1, 0), x\_3 = (0, 0, 1)，那么两个工作之间的距离就都是sqrt(2).即每两个工作之间的距离是一样的，显得更合理。
+
+\item About the original question?
+
+Note that our reason for why binarize the categorical features is independent of the number of the values the categorical features take, so yes, even if the categorical feature takes 1000 values, we still would prefer to do binarization.
+
+对离散型特征进行one-hot编码是为了让距离的计算显得更加合理。
+
+\item Are there cases when we can avoid doing binarization?
+
+Yes. As we figured out earlier, the reason we binarize is because we want some meaningful distance relationship between the different values. As long as there is some meaningful distance relationship, we can avoid binarizing the categorical feature. For example, if you are building a classifier to classify a webpage as important entity page (a page important to a particular entity) or not and let us say that you have the rank of the webpage in the search result for that entity as a feature, then 1] note that the rank feature is categorical, 2] rank 1 and rank 2 are clearly closer to each other than rank 1 and rank 3, so the rank feature defines a meaningful distance relationship and so, in this case, we don't have to binarize the categorical rank feature.
+
+More generally, if you can cluster the categorical values into disjoint subsets such that the subsets have meaningful distance relationship amongst them, then you don't have binarize fully, instead you can split them only over these clusters. For example, if there is a categorical feature with 1000 values, but you can split these 1000 values into 2 groups of 400 and 600 (say) and within each group, the values have meaningful distance relationship, then instead of fully binarizing, you can just add 2 features, one for each cluster and that should be fine.
+
+将离散型特征进行one-hot编码的作用，是为了让距离计算更合理，但如果特征是离散的，并且不用one-hot编码就可以很合理的计算出距离，那么就没必要进行one-hot编码，比如，该离散特征共有1000个取值，我们分成两组，分别是400和600,两个小组之间的距离有合适的定义，组内的距离也有合适的定义，那就没必要用one-hot 编码
+ 
+离散特征进行one-hot编码后，编码后的特征，其实每一维度的特征都可以看做是连续的特征。就可以跟对连续型特征的归一化方法一样，对每一维特征进行归一化。比如归一化到[-1,1]或归一化到均值为0,方差为1
+\end{enumerate}
+ 
+\textbf{有些情况不需要进行特征的归一化：}
+
+It depends on your ML algorithms, some methods requires almost no efforts to normalize features or handle both continuous and discrete features, like tree based methods: c4.5, Cart, random Forrest, bagging or boosting. But most of parametric models (generalized linear models, neural network, SVM,etc) or methods using distance metrics (KNN, kernels, etc) will require careful work to achieve good results. Standard approaches including binary all features, 0 mean unit variance all continuous features, etc。
+
+\textbf{基于树的方法是不需要进行特征的归一化，例如随机森林，bagging 和 boosting等。基于参数的模型或基于距离的模型，都是要进行特征的归一化。}
+
+one-hot编码为什么可以解决类别型数据的离散值问题 
+
+首先，one-hot编码是N位状态寄存器为N个状态进行编码的方式 
+
+eg：高、中、低不可分，→ 用0 0 0 三位编码之后变得可分了，并且成为互相独立的事件 
+
+→ 类似 SVM中，原本线性不可分的特征，经过project之后到高维之后变得可分了 
+
+GBDT处理高维稀疏矩阵的时候效果并不好，即使是低维的稀疏矩阵也未必比SVM好 
+
+Tree Model不太需要one-hot编码： 
+
+对于决策树来说，one-hot的本质是增加树的深度 
+
+tree-model是在动态的过程中生成类似 One-Hot + Feature Crossing 的机制 
+\begin{enumerate}
+\item 一个特征或者多个特征最终转换成一个叶子节点作为编码 ，one-hot可以理解成三个独立事件 
+\item 决策树是没有特征大小的概念的，只有特征处于他分布的哪一部分的概念 
+\end{enumerate}
+one-hot可以解决线性可分问题 但是比不上label encoding 
+
+one-hot降维后的缺点： 
+
+降维前可以交叉的降维后可能变得不能交叉 
+
+树模型的训练过程： 
+
+从根节点到叶子节点整条路中有多少个节点相当于交叉了多少次，所以树的模型是自行交叉 
+
+eg：是否是长的 { 否（是→ 柚子，否 → 苹果） ，是 → 香蕉 } 园 cross 黄 → 形状 （圆，长） 颜色 （黄，红） one-hot度为4的样本 
+
+使用树模型的叶子节点作为特征集交叉结果可以减少不必要的特征交叉的操作 或者减少维度和degree候选集 
+
+eg 2 degree → 8的特征向量 树 → 3个叶子节点 
+
+树模型：Ont-Hot + 高degree笛卡尔积 + lasso 要消耗更少的计算量和计算资源 
+
+这就是为什么树模型之后可以stack线性模型 
+
+n*m的输入样本 → 决策树训练之后可以知道在哪一个叶子节点上 → 输出叶子节点的index → 变成一个n*1的矩阵 → one-hot编码 → 可以得到一个n*o的矩阵（o是叶子节点的个数） → 训练一个线性模型 
+
+典型的使用： GBDT +　ＲＦ 
+
+优点 ： 节省做特征交叉的时间和空间 
+
+如果只使用one-hot训练模型，特征之间是独立的 
+
+对于现有模型的理解：（G（l（张量）））： 
+
+其中：l（·）为节点的模型 
+
+G（·）为节点的拓扑方式 
+
+神经网络：l（·）取逻辑回归模型 
+
+G（·）取全连接的方式 
+
+决策树： l（·）取LR 
+
+G（·）取树形链接方式 
+
+创新点： l（·）取 NB，SVM 单层NN ，等 
+
+
+
+中文版翻译：独热编码（One-Hot Encoding）
+
+
+In tasks in which words are features, the bag-of-words model can be used to create a feature vector when the number of features (words) is not known in advance, with the assumption that their order is not important. Each word is represented by a one-hot vector - a sparse vector in the size of the vocabulary, with 1 in the entry representing the word and 0 in all other entries. The bag-of-words feature vector is the sum of all one-hot vectors of the words, and therefore has a non-zero value for every word that occurred. In the weighted variation, it is a weighted sum according to frequency or TF-IDF scores.
+
+Continuous bag-of-words (CBOW) is exactly the same, but instead of using sparse vectors to represent words, it uses dense vectors (continuous distributional "embeddings").
+
+
+
+
+BOW (bag of words) 模型简介 Bag of words模型最初被用在文本分类中，将文档表示成特征矢量。它的基本思想是假定对于一个文本，忽略其词序和语法、句法，仅仅将其看做是一些词汇的集合，而文本中的每个词汇都是独立的。简单说就是讲每篇文档都看成一个袋子（因为里面装的都是词汇，所以称为词袋，Bag of words即因此而来），然后看这个袋子里装的都是些什么词汇，将其分类。如果文档中猪、马、牛、羊、山谷、土地、拖拉机这样的词汇多些，而银行、大厦、汽车、公园这样的词汇少些，我们就倾向于判断它是一篇描绘乡村的文档，而不是描述城镇的。举个例子，有如下两个文档：
+
+文档一：Bob likes to play basketball, Jim likes too.
+
+文档二：Bob also likes to play football games.
+
+基于这两个文本文档，构造一个词典：
+
+Dictionary = \{1:”Bob”, 2. “like”, 3. “to”, 4. “play”, 5. “basketball”, 6. “also”, 7. “football”，8. “games”, 9. “Jim”, 10. “too”\}。
+
+这个词典一共包含10个不同的单词，利用词典的索引号，上面两个文档每一个都可以用一个10维向量表示（用整数数字0~n（n为正整数）表示某个单词在文档中出现的次数）：
+
+1：[1, 2, 1, 1, 1, 0, 0, 0, 1, 1]
+
+2：[1, 1, 1, 1 ,0, 1, 1, 1, 0, 0]
+
+向量中每个元素表示词典中相关元素在文档中出现的次数(下文中，将用单词的直方图表示)。不过，在构造文档向量的过程中可以看到，我们并没有表达单词在原来句子中出现的次序（这是本Bag-of-words模型的缺点之一，不过瑕不掩瑜甚至在此处无关紧要）。
+
+为什么要用BOW模型描述图像 SIFT特征虽然也能描述一幅图像，但是每个SIFT矢量都是128维的，而且一幅图像通常都包含成百上千个SIFT矢量，在进行相似度计算时，这个计算量是非常大的，通行的做法是用聚类算法对这些矢量数据进行聚类，然后用聚类中的一个簇代表BOW中的一个视觉词，将同一幅图像的SIFT矢量映射到视觉词序列生成码本，这样每一幅图像只用一个码本矢量来描述，这样计算相似度时效率就大大提高了。
+
+构建BOW码本步骤：
+1. 假设训练集有M幅图像，对训练图象集进行预处理。包括图像增强，分割，图像统一格式，统一规格等等。
+2. 提取SIFT特征。对每一幅图像提取SIFT特征（每一幅图像提取多少个SIFT特征不定）。每一个SIFT特征用一个128维的描述子矢量表示，假设M幅图像共提取出N个SIFT特征。
+3. 用K-means对2中提取的N个SIFT特征进行聚类，K-Means算法是一种基于样本间相似性度量的间接聚类方法，此算法以K为参数，把N个对象分为K个簇，以使簇内具有较高的相似度，而簇间相似度较低。聚类中心有k个（在BOW模型中聚类中心我们称它们为视觉词），码本的长度也就为k，计算每一幅图像的每一个SIFT特征到这k个视觉词的距离，并将其映射到距离最近的视觉词中（即将该视觉词的对应词频+1）。完成这一步后，每一幅图像就变成了一个与视觉词序列相对应的词频矢量。
+4. 构造码本。码本矢量归一化因为每一幅图像的SIFT特征个数不定，所以需要归一化。如上述例子，归一化后为[1 0 0],1/12*[5 3 4].测试图像也需经过预处理，提取SIFT特征，将这些特征映射到为码本矢量，码本矢量归一化，最后计算其与训练码本的距离，对应最近距离的训练图像认为与测试图像匹配。 > 设视觉词序列为{眼睛 鼻子 嘴}（k=3），则训练集中的图像变为： > > 第一幅图像：[1 0 0] > > 第二幅图像：[5 3 4]......
+
+当然，在提取sift特征的时候，可以将图像打成很多小的patch，然后对每个patch提取SIFT特征。
+
+总结一下，整个过程其实就做了三件事，首先提取对 n 幅图像分别提取SIFT特征，然后对提取的整个SIFT特征进行k-means聚类得到 k 个聚类中心作为视觉单词表，最后对每幅图像以单词表为规范对该幅图像的每一个SIFT特征点计算它与单词表中每个单词的距离，最近的+1，便可得到该幅图像的码本。实际上第三步是一个统计的过程，所以BOW中向量元素都是非负的。Yunchao Gong 2012年NIPS上有一篇用二进制编码用于图像快速检索的文章就是针对这类元素是非负的特征而设计的编码方案。
+
+
+
+
+
+
+Bag-of-words模型简介
+Bag-of-words模型是信息检索领域常用的文档表示方法。在信息检索中，BOW模型假定对于一个文档，忽略它的单词顺序和语法、句法等要素，将其仅仅看作是若干个词汇的集合，文档中每个单词的出现都是独立的，不依赖于其它单词是否出现。也就是说，文档中任意一个位置出现的任何单词，都不受该文档语意影响而独立选择的。例如有如下两个文档：
+ 
+     1：Bob likes to play basketball, Jim likes too.
+     2：Bob also likes to play football games.
+ 
+基于这两个文本文档，构造一个词典：
+ 
+Dictionary = {1:”Bob”, 2. “like”, 3. “to”, 4. “play”, 5. “basketball”, 6. “also”, 7. “football”, 8. “games”, 9. “Jim”, 10. “too”}。
+
+这个词典一共包含10个不同的单词，利用词典的索引号，上面两个文档每一个都可以用一个10维向量表示（用整数数字0~n（n为正整数）表示某个单词在文档中出现的次数）：
+ 
+     1：[1, 2, 1, 1, 1, 0, 0, 0, 1, 1]
+     2：[1, 1, 1, 1 ,0, 1, 1, 1, 0, 0]
+ 
+向量中每个元素表示词典中相关元素在文档中出现的次数(下文中，将用单词的直方图表示)。不过，在构造文档向量的过程中可以看到，我们并没有表达单词在原来句子中出现的次序（这是本Bag-of-words模型的缺点之一，不过瑕不掩瑜甚至在此处无关紧要）。
+
+
+Bag-of-words模型的应用
+Bag-of-words模型的适用场合
+现在想象在一个巨大的文档集合D，里面一共有M个文档，而文档里面的所有单词提取出来后，一起构成一个包含N个单词的词典，利用Bag-of-words模型，每个文档都可以被表示成为一个N维向量，计算机非常擅长于处理数值向量。这样，就可以利用计算机来完成海量文档的分类过程。
+考虑将Bag-of-words模型应用于图像表示。为了表示一幅图像，我们可以将图像看作文档，即若干个“视觉词汇”的集合，同样的，视觉词汇相互之间没有顺序。
+
+
+
+
+
+
+
+一、One-Hot Encoding
+
+    One-Hot编码，又称为一位有效编码，主要是采用位状态寄存器来对个状态进行编码，每个状态都由他独立的寄存器位，并且在任意时候只有一位有效。
+    在实际的机器学习的应用任务中，特征有时候并不总是连续值，有可能是一些分类值，如性别可分为“male”和“female”。在机器学习任务中，对于这样的特征，通常我们需要对其进行特征数字化，如下面的例子：
+有如下三个特征属性：
+性别：["male"，"female"]
+地区：["Europe"，"US"，"Asia"]
+浏览器：["Firefox"，"Chrome"，"Safari"，"Internet Explorer"]
+对于某一个样本，如["male"，"US"，"Internet Explorer"]，我们需要将这个分类值的特征数字化，最直接的方法，我们可以采用序列化的方式：[0,1,3]。但是这样的特征处理并不能直接放入机器学习算法中。
+二、One-Hot Encoding的处理方法
+
+    对于上述的问题，性别的属性是二维的，同理，地区是三维的，浏览器则是思维的，这样，我们可以采用One-Hot编码的方式对上述的样本“["male"，"US"，"Internet Explorer"]”编码，“male”则对应着[1，0]，同理“US”对应着[0，1，0]，“Internet Explorer”对应着[0,0,0,1]。则完整的特征数字化的结果为：[1,0,0,1,0,0,0,0,1]。这样导致的一个结果就是数据会变得非常的稀疏。
+
+三、实际的Python代码
+
+[python] view plain copy
+from sklearn import preprocessing  
+  
+enc = preprocessing.OneHotEncoder()  
+enc.fit([[0,0,3],[1,1,0],[0,2,1],[1,0,2]])  
+  
+array = enc.transform([[0,1,3]]).toarray()  
+  
+print array  
+
+结果：[[ 1.  0.  0.  1.  0.  0.  0.  0.  1.]]
+
+
+
+one-hot aka one-of-K scheme.
+
+
+\href{https://stats.stackexchange.com/questions/224051/one-hot-vs-dummy-encoding-in-scikit-learn}{One-hot vs dummy encoding in Scikit-learn}
+
+
+
+
+one-hot 表示方法：最常见的文本表示法
+方法：构建一个大小为$N$的字典，对每个词顺序编号。构建一个长度为$N$的向量$V$，如果文本中有词$w$，其对应编号为$w_{i}$，则$V_{w_{i}}=1$。
+优缺点
+\begin{itemize}
+\item 优点：表示形式简单，维度固定，方便计算文本之间的距离
+\item 缺点:  
+\subitem 不考虑词之间的顺序(bag-of-words)
+\subitem 假设词之间相互独立
+\subitem 特征离散稀疏
+\end{itemize}
+
+一个例子
+
+假设我们构建了一个长度为10的字典，其中``我"在字典中的编号为2，``来到"为9，``北京"为4，``清华大学"为7，则文本``我来到北京清华大学"经过切词后为``我/来到/北京/清华大学"，其特征向量为：
+
+\begin{equation}
+\left(
+\begin{array}{c}
+    0\\
+    0\\
+    1\\
+    0\\
+    1\\
+    0\\
+    0\\
+    1\\
+    0\\
+    1\\
+\end{array}
+\right)
+\end{equation}
+
+
+
+
+Bag-of-words model (BoW model) 最早出现在NLP和IR(information retrieval)领域. 该模型忽略掉文本的语法和语序, 用一组无序的单词(words)来表达一段文字或一个文档. 近年来, BoW模型被广泛应用于计算机视觉中. 与应用于文本的BoW类比, 图像的特征(feature)被当作单词(Word).
+
+应用于文本的BoW model：
+
+Wikipedia[1]上给出了如下例子:
+
+   John likes to watch movies. Mary likes too.
+
+   John also likes to watch football games.
+根据上述两句话中出现的单词, 我们能构建出一个字典 (dictionary):
+
+{"John": 1, "likes": 2, "to": 3, "watch": 4, "movies": 5, "also": 6, "football": 7, "games": 8, "Mary": 9, "too": 10}
+该字典中包含10个单词, 每个单词有唯一索引, 注意它们的顺序和出现在句子中的顺序没有关联. 根据这个字典, 我们能将上述两句话重新表达为下述两个向量:
+
+  [1, 2, 1, 1, 1, 0, 0, 0, 1, 1]
+
+  [1, 1, 1, 1, 0, 1, 1, 1, 0, 0]
+这两个向量共包含10个元素, 其中第i个元素表示字典中第i个单词在句子中出现的次数. 因此BoW模型可认为是一种统计直方图 (histogram). 在文本检索和处理应用中, 可以通过该模型很方便的计算词频.
+
+ 
+ 
+tf-idf模型
+
+目前，真正在搜索引擎等实际应用中广泛使用的是tf-idf模型。tf-idf模型的主要思想是：如果词w在一篇文档d中出现的频率高，并且在其他文档中很少出现，则认为词w具有很好的区分能力，适合用来把文章d和其他文章区分开来。该模型主要包含了两个因素：
+
+1) 词w在文档d中的词频tf (Term Frequency)，即词w在文档d中出现次数count(w, d)和文档d中总词数size(d)的比值：
+
+tf(w,d) = count(w, d) / size(d) 
+2) 词w在整个文档集合中的逆向文档频率idf (Inverse Document Frequency)，即文档总数n与词w所出现文件数docs(w, D)比值的对数:
+
+idf = log(n / docs(w, D)) 
+tf-idf模型根据tf和idf为每一个文档d和由关键词w[1]…w[k]组成的查询串q计算一个权值，用于表示查询串q与文档d的匹配度：
+
+tf-idf(q, d) 
+= sum { i = 1..k | tf-idf(w[i], d) } 
+= sum { i = 1..k | tf(w[i], d) * idf(w[i]) } 
+ 
+
+http://coolshell.cn/articles/8422.html
+
+
+
+Bagofwords模型，也叫做“词袋”，在信息检索中，Bag of words model假定对于一个文本，忽略其词序和语法，句法，将其仅仅看做是一个词集合，或者说是词的一个组合，文本中每个词的出现都是独立的，不依赖于其他词是否出现，或者说当这篇文章的作者在任意一个位置选择一个词汇都不受前面句子的影响而独立选择的。
+Bag of words模型
+这种假设虽然对自然语言进行了简化，便于模型化，但是其假定在有些情况下是不合理的，例如在新闻个性化推荐中，采用Bag of words的模型就会出现问题。例如用户甲对“南京醉酒驾车事故”这个短语很感兴趣，采用bag of words忽略了顺序和句法，则认为用户甲对“南京”、“醉酒”、“驾车”和“事故”感兴趣，因此可能推荐出和“南京”，“公交车”，“事故”相关的新闻，这显然是不合理的。
+解决的方法可以采用SCPCD的方法抽取出整个短语，或者采用高阶（2阶以上）统计语言模型，例如bigram，trigram来将词序保留下来，相当于bag of bigram和bag of trigram，这样能在一定程度上解决这种问题。
+简言之，bag of words模型是否适用需要根据实际情况来确定。对于那些不可以忽视词序，语法和句法的场合均不能采用bag of words的方法。
+
+
+
+
+Bag-of-words model (BoW model) 最早出现在NLP和IR领域. 该模型忽略掉文本的语法和语序, 用一组无序的单词(words)来表达一段文字或一个文档. 近年来, BoW模型被广泛应用于计算机视觉中. 与应用于文本的BoW类比, 图像的特征(feature)被当作单词(Word).
+
+引子: 应用于文本的BoW model
+Wikipedia[1]上给出了如下例子:
+
+   John likes to watch movies. Mary likes too.
+
+      John also likes to watch football games.
+      根据上述两句话中出现的单词, 我们能构建出一个字典 (dictionary):
+
+      {"John": 1, "likes": 2, "to": 3, "watch": 4, "movies": 5, "also": 6, "football": 7, "games": 8, "Mary": 9, "too": 10}
+      该字典中包含10个单词, 每个单词有唯一索引, 注意它们的顺序和出现在句子中的顺序没有关联. 根据这个字典, 我们能将上述两句话重新表达为下述两个向量:
+
+       
+
+         [1, 2, 1, 1, 1, 0, 0, 0, 1, 1]
+
+           [1, 1, 1, 1, 0, 1, 1, 1, 0, 0]
+            
+
+            这两个向量共包含10个元素, 其中第i个元素表示字典中第i个单词在句子中出现的次数. 因此BoW模型可认为是一种统计直方图 (histogram). 在文本检索和处理应用中, 可以通过该模型很方便的计算词频.
+
+            应用于计算机视觉的BoW model[2]
+            Fei-fei Li[3]在中提出了用BoW模型表达图像的方法. 他们认为, 图像可以类比为文档(document), 图像中的单词(words)可以定义为一个图像块(image patch)的特征向量. 那么图像的BoW模型即是 “图像中所有图像块的特征向量得到的直方图”. 建立BoW模型主要分为如下几个步骤:
+
+            1. 特征提取
+
+            假设有N张图像, 第i张图像图像可由n(i)个image patch组成, 也即可以由n(i)个特征向量表达. 则总共能得到sum(n(i))个特征向量(即单词).
+
+            特征向量可以根据特征问题自行设计, 常用特征有Color histogram, SIFT, LBP等.
+
+            2. 生成字典/码本(codebook)
+
+            对上一步得到的特征向量进行聚类(可以使用K-means等聚类方法), 得到K个聚类中心, 用聚类中心构建码本.
+
+            3. 根据码本生成直方图
+
+            对每张图片, 通过最近邻计算该图片的每个 “单词”应该属于codebook中的 “哪一类”单词, 从而得到该图片对应于该码本的BoW表示.
+
+            Reference
+
+            %[1].   Bag-of-words model. (2012, November 30). In Wikipedia, The Free Encyclopedia. Retrieved 11:48, December 3, 2012, from http://en.wikipedia.org/w/index.php?title=Bag-of-words_model&oldid=525730564
+
+            %[2].   Bag-of-words model in computer vision. (2012, October 11). In Wikipedia, The Free Encyclopedia. Retrieved 11:50, December 3, 2012, fromhttp://en.wikipedia.org/w/index.php?title=Bag-of-words_model_in_computer_vision&oldid=517192612
+
+            %[3].   L. Fei-Fei and P. Perona (2005). "A Bayesian Hierarchical Model for Learning Natural Scene Categories". Proc. of IEEE Computer Vision and Pattern Recognition. pp. 524–531.
+
+
+
+
+
+
+The bag-of-words model is a simplifying assumption used in natural language processing and information retrieval. In this model, a text (such as a sentence or a document) is represented as an unordered collection of words, disregarding grammar and even word order.
+
+   词袋模型是在自然语言处理和信息检索中的一种简单假设。在这种模型中，文本（段落或者文档）被看作是无序的词汇集合，忽略语法甚至是单词的顺序。
+
+
+   The bag-of-words model is used in some methods of document classification. When a Naive Bayes classifier is applied to text, for example, the conditional independence assumption leads to the bag-of-words model. [1] Other methods of document classification that use this model are latent Dirichlet allocation and latent semantic analysis.[2]
+
+   词袋模型被用在文本分类的一些方法当中。当传统的贝叶斯分类被应用到文本当中时，贝叶斯中的条件独立性假设导致词袋模型。另外一些文本分类方法如LDA和LSA也使用了这个模型。
+
+  
+   Example: Spam filtering 
+   In Bayesian spam filtering, an e-mail message is modeled as an unordered collection of words selected from one of two probability distributions: one representing spam and one representing legitimate e-mail ("ham"). Imagine that there are two literal bags full of words. One bag is filled with words found in spam messages, and the other bag is filled with words found in legitimate e-mail. While any given word is likely to be found somewhere in both bags, the "spam" bag will contain spam-related words such as "stock", "Viagra", and "buy" much more frequently, while the "ham" bag will contain more words related to the user's friends or workplace. 
+
+   在贝叶斯垃圾邮件过滤中，一封邮件被看作无序的词汇集合，这些词汇从两种概率分布中被选出。一个代表垃圾邮件，一个代表合法的电子邮件。这里假设有两个装满词汇的袋子。一个袋子里面装的是在垃圾邮件中发现的词汇。另一个袋子装的是合法邮件中的词汇。尽管给定的一个词可能出现在两个袋子中，装垃圾邮件的袋子更有可能包含垃圾邮件相关的词汇，如股票，伟哥，“买”，而合法的邮件更可能包含邮件用户的朋友和工作地点的词汇。
+
+
+    To classify an e-mail message, the Bayesian spam filter assumes that the message is a pile of words that has been poured out randomly from one of the two bags, and uses Bayesian probability to determine which bag it is more likely to be.
+
+    为了将邮件分类，贝叶斯邮件分类器假设邮件来自于两个词袋中中的一个，并使用贝叶斯概率条件概率来决定那个袋子更可能产生这样的一封邮件。
+
+
+
+   Bag of words，也叫做“词袋”，在信息检索中，Bag of words model假定对于一个文本，忽略其词序和语法，句法，将其仅仅看做是一个词集合，或者说是词的一个组合，文本中每个词的出现都是独立的，不依赖于其他词是否出现，或者说当这篇文章的作者在任意一个位置选择一个词汇都不受前面句子的影响而独立选择的。
+        
+             这种假设虽然对自然语言进行了简化，便于模型化，但是其假定在有些情况下是不合理的，例如在新闻个性化推荐中，采用Bag of words的模型就会出现问题。例如用户甲对“南京醉酒驾车事故”这个短语很感兴趣，采用bag of words忽略了顺序和句法，则认为用户甲对“南京”、“醉酒”、“驾车”和“事故”感兴趣，因此可能推荐出和“南京”，“公交车”，“事故”相关的新闻，这显然是不合理的。
+              
+                   解决的方法可以采用SCPCD的方法抽取出整个短语，或者采用高阶（2阶以上）统计语言模型，例如bigram，trigram来将词序保留下来，相当于bag of bigram和bag of trigram，这样能在一定程度上解决这种问题。
+                    
+                        简言之，bag of words模型是否适用需要根据实际情况来确定。对于那些不可以忽视词序，语法和句法的场合均不能采用bag of words的方法。
+                         
+                         %参考：http://en.wikipedia.org/wiki/Bag_of_words_model
+
+
+
+
+
+
+
+
+
+重复造轮子并不是完全没有意义的。
+
+ 
+
+ 
+
+这几天忙里偷闲看了一些关于BOW模型的知识，虽然自己做图像检索到目前为止并没有用到过BOW模型，不过了解一下BOW并不是一件毫无意义的事情。网上关于理解BOW模型也很多，而且也很详细，再写一点关于BOW模型的理解，无异于重新造一次轮子，不过我一直坚信重复造轮子并不是完全没有意义的，重要的是你能够从中学到很多的知识，如果可能，你甚而再这个重复造轮子的过程中发现新问题，并进行改进。好了，回归正题。
+
+ 
+
+BOW (bag of words) 模型简介
+Bag of words模型最初被用在文本分类中，将文档表示成特征矢量。它的基本思想是假定对于一个文本，忽略其词序和语法、句法，仅仅将其看做是一些词汇的集合，而文本中的每个词汇都是独立的。简单说就是讲每篇文档都看成一个袋子（因为里面装的都是词汇，所以称为词袋，Bag of words即因此而来），然后看这个袋子里装的都是些什么词汇，将其分类。如果文档中猪、马、牛、羊、山谷、土地、拖拉机这样的词汇多些，而银行、大厦、汽车、公园这样的词汇少些，我们就倾向于判断它是一篇描绘乡村的文档，而不是描述城镇的。举个例子，有如下两个文档：
+
+ 
+
+文档一：Bob likes to play basketball, Jim likes too.
+
+文档二：Bob also likes to play football games.
+
+ 
+
+基于这两个文本文档，构造一个词典：
+
+Dictionary = {1:”Bob”, 2. “like”, 3. “to”, 4. “play”, 5. “basketball”, 6. “also”, 7. “football”，8. “games”, 9. “Jim”, 10. “too”}。
+
+ 
+
+这个词典一共包含10个不同的单词，利用词典的索引号，上面两个文档每一个都可以用一个10维向量表示（用整数数字0~n（n为正整数）表示某个单词在文档中出现的次数）：
+
+1：[1, 2, 1, 1, 1, 0, 0, 0, 1, 1]
+
+2：[1, 1, 1, 1 ,0, 1, 1, 1, 0, 0]
+
+ 
+
+向量中每个元素表示词典中相关元素在文档中出现的次数(下文中，将用单词的直方图表示)。不过，在构造文档向量的过程中可以看到，我们并没有表达单词在原来句子中出现的次序（这是本Bag-of-words模型的缺点之一，不过瑕不掩瑜甚至在此处无关紧要）。
+
+ 
+
+为什么要用BOW模型描述图像
+SIFT特征虽然也能描述一幅图像，但是每个SIFT矢量都是128维的，而且一幅图像通常都包含成百上千个SIFT矢量，在进行相似度计算时，这个计算量是非常大的，通行的做法是用聚类算法对这些矢量数据进行聚类，然后用聚类中的一个簇代表BOW中的一个视觉词，将同一幅图像的SIFT矢量映射到视觉词序列生成码本，这样每一幅图像只用一个码本矢量来描述，这样计算相似度时效率就大大提高了。
+
+ 
+
+构建BOW码本步骤：
+1. 假设训练集有M幅图像，对训练图象集进行预处理。包括图像增强，分割，图像统一格式，统一规格等等。2、提取SIFT特征。对每一幅图像提取SIFT特征（每一幅图像提取多少个SIFT特征不定）。每一个SIFT特征用一个128维的描述子矢量表示，假设M幅图像共提取出N个SIFT特征。3. 用K-means对2中提取的N个SIFT特征进行聚类，K-Means算法是一种基于样本间相似性度量的间接聚类方法，此算法以K为参数，把N个对象分为K个簇，以使簇内具有较高的相似度，而簇间相似度较低。聚类中心有k个（在BOW模型中聚类中心我们称它们为视觉词），码本的长度也就为k，计算每一幅图像的每一个SIFT特征到这k个视觉词的距离，并将其映射到距离最近的视觉词中（即将该视觉词的对应词频+1）。完成这一步后，每一幅图像就变成了一个与视觉词序列相对应的词频矢量。
+
+ 
+
+设视觉词序列为{眼睛 鼻子 嘴}（k=3），则训练集中的图像变为：
+
+第一幅图像：[1 0 0]
+
+第二幅图像：[5 3 4]......
+
+ 
+
+2. 构造码本。码本矢量归一化因为每一幅图像的SIFT特征个数不定，所以需要归一化。如上述例子，归一化后为[1 0 0],1/12*[5 3 4].测试图像也需经过预处理，提取SIFT特征，将这些特征映射到为码本矢量，码本矢量归一化，最后计算其与训练码本的距离，对应最近距离的训练图像认为与测试图像匹配。
+
+ 
+
+当然，在提取sift特征的时候，可以将图像打成很多小的patch，然后对每个patch提取SIFT特征。
+
+ 
+
+总结一下，整个过程其实就做了三件事，首先提取对  n  幅图像分别提取SIFT特征，然后对提取的整个SIFT特征进行k-means聚类得到  k  个聚类中心作为视觉单词表，最后对每幅图像以单词表为规范对该幅图像的每一个SIFT特征点计算它与单词表中每个单词的距离，最近的+1，便可得到该幅图像的码本。实际上第三步是一个统计的过程，所以BOW中向量元素都是非负的。Yunchao Gong 2012年NIPS上有一篇用二进制编码用于图像快速检索的文章就是针对这类元素是非负的特征而设计的编码方案。
+
+
+
+
+ Bag of visual word类似于BoW模型，基本思想概括如下：
+ 1）提取特征（Extract Features)
+ 根据具体应用考虑，综合考虑特征的独特性、提取复杂性、效果好坏，处理是否方便等选择特征。
+ 2）学习视觉词袋（Learn Visual Vocabulary）
+ 统计图像数据库中出现的所有特征，去除冗余组成词袋。如果提取的图像特征过多，一般需要利用聚类算法先把相近的单词归为一类（类似于文档检索里的找词根），利用这些聚类结果来组成词袋。
+ 3）利用视觉词袋量化图像特征（Quantize features using visual vocabulary）
+ 4）利用词频表示图像（Represent images by frequencies of visual words）
+
+
+
+
+o　Bag of words模型 
+
+　　Bag of words，也叫做“词袋”，在信息检索中，Bag of words model假定对于一个文本，忽略其词序和语法，句法，将其仅仅看做是一个词集合，或者说是词的一个组合，文本中每个词的出现都是独立的，不依赖于其他词是否出现，或者说当这篇文章的作者在任意一个位置选择一个词汇都不受前面句子的影响而独立选择的。 
+
+　　这种假设虽然对自然语言进行了简化，便于模型化，但是其假定在有些情况下是不合理的，例如在新闻个性化推荐中，采用Bag of words的模型就会出现问题。例如用户甲对“南京醉酒驾车事故”这个短语很感兴趣，采用bag of words忽略了顺序和句法，则认为用户甲对“南京”、“醉酒”、“驾车”和“事故”感兴趣，因此可能推荐出和“南京”，“公交车”，“事故”相关的新闻，这显然是不合理的。 
+
+　　解决的方法可以采用SCPCD的方法抽取出整个短语，或者采用高阶（2阶以上）统计语言模型，例如bigram，trigram来将词序保留下来，相当于bag of bigram和bag of trigram，这样能在一定程度上解决这种问题。 
+
+　　简言之，bag of words模型是否适用需要根据实际情况来确定。对于那些不可以忽视词序，语法和句法的场合均不能采用bag of words的方法。
+
+
+
+Bag-of-words简介
+最初的Bag-of-words ，也叫做“词袋”，在信息检索中，Bag-of-words model假定对于一个文本，忽略其词序和语法，句法，将其仅仅看做是一个词集合，或者说是词的一个组合，文本中每个词的出现都是独立的，不依赖于其他词是否出现。
+应用于文本的BoW简单实例
+John likes to watch movies. Mary likes too.
+John also likes to watch football games.
+根据上述两句话中出现的单词, 我们能构建出一个字典
+{"John": 1, "likes": 2, "to": 3, "watch": 4, "movies": 5, "also": 6, "football": 7, "games": 8, "Mary": 9, "too": 10}
+该字典中包含10个单词, 每个单词有唯一索引. 根据这个字典, 我们能将上述两句话重新表达为下述两个向量:
+[1, 2, 1, 1, 1, 0, 0, 0, 1, 1]
+[1, 1, 1, 1, 0, 1, 1, 1, 0, 0]
+这两个向量共包含10个元素,其中第i个元素表示字典中第i个单词在句子中出现的次数。因此BoW模型可认为是一种统计直方图。在文本检索和处理应用中, 可以通过该模型很方便的计算词频.
+Bag-of-words应用于图像处理
+背景知识
+SIFT简介
+SIFT，尺度不变特征转换(Scale-invariant feature transform,SIFT)，是用于图像处理领域的一种描述子。这种描述具有尺度不变性，可在图像中检测出关键点。是一种局部描述子。
+SIFT优势
+SIFT特征不只具有尺度不变性，即使改变旋转角度，图像亮度或拍摄视角，仍然能够得到好的检测效果。所以应用于图像识别时，可以抑制图像尺度、角度、亮度等影响。
+图像特征提取
+图像可以类比为文档，图像中的单词可以定义为一个图像块的特征向量。那么图像的BoW模型即是 “图像中所有图像块的特征向量得到的直方图”。
+1.特征提取
+假设有N张图像，第i张图像图像可由n(i)个image patch组成, 也即可以由n(i)个特征向量表达。则总共能得sum(n(i))个特征向量(即单词)。
+特征向量可以使用SIFT方法获取，每一个patch特征向量的维数是128。
+2.生成词典/码本
+假设词典的大小为100，即有100个词。用K-means算法对所有的patch进行聚类，k=100，当k-means收敛时，我们也得到了每一个聚类最后的质心，那么这100个质心（维数128）就是词典里的100个词了，词典构建完毕。
+3.根据码本生成直方图
+对每张图片，通过最近邻计算该图片的每个 “单词”应该属于聚类中的“哪一类”单词，从而得到该图片对应于该码本的BoW表示。
+Bag-of-words模型构建完成，就可以进行分类、预测等训练
+
+
+
+Bag of Visual Word
+Motivation
+ 1)纹理识别（texture recognition）
+ texton: refer to fundamental micro-structures in generic material images and the basic elements in early visual perception.
+ 纹理是由图像中一些基本的细小结构组成的，是早期视觉感知中的基本单元。局部的细小结构组合在一起，形成了图像中的纹理，这与BoV的思想有相同的地方。
+ 2）文档检索（Document Retrieval）
+ 文档检索基于关键字查询的方法中，Bag of Words方法非常流行，其基本思想是：统计语料库(Corpus)中的所有单词组成单词表，对于每一篇文档统计其中的单词出现的频次，用由这些单词频率组成的直方图来表示这篇文档。
+
+Outline
+ Bag of visual word类似于BoW模型，基本思想概括如下：
+ 1）提取特征（Extract Features)
+ 根据具体应用考虑，综合考虑特征的独特性、提取复杂性、效果好坏，处理是否方便等选择特征。
+ 2）学习视觉词袋（Learn Visual Vocabulary）
+ 统计图像数据库中出现的所有特征，去除冗余组成词袋。如果提取的图像特征过多，一般需要利用聚类算法先把相近的单词归为一类（类似于文档检索里的找词根），利用这些聚类结果来组成词袋。
+ 3）利用视觉词袋量化图像特征（Quantize features using visual vocabulary）
+ 4）利用词频表示图像（Represent images by frequencies of visual words）
+
+
+
+
+最初的Bag of words，也叫做“词袋”，在信息检索中，Bag of words model假定对于一个文本，忽略其词序和语法，句法，将其仅仅看做是一个词集合，或者说是词的一个组合，文本中每个词的出现都是独立的，不依赖于其他词是否出现，或者说当这篇文章的作者在任意一个位置选择一个词汇都不受前面句子的影响而独立选择的。
+       现在Computer Vision中的Bag of words来表示图像的特征描述也是很流行的。大体思想是这样的，假设有5类图像，每一类中有10幅图像，这样首先对每一幅图像划分成patch（可以是刚性分割也可以是像SIFT基于关键点检测的），这样，每一个图像就由很多个patch表示，每一个patch用一个特征向量来表示，咱就假设用Sift表示的，一幅图像可能会有成百上千个patch，每一个patch特征向量的维数128。
+      接下来就要进行构建Bag of words模型了，假设Dictionary词典的Size为100，即有100个词。那么咱们可以用K-means算法对所有的patch进行聚类，k=100，我们知道，等k-means收敛时，我们也得到了每一个cluster最后的质心，那么这100个质心（维数128）就是词典里德100 个词了，词典构建完毕。
+      词典构建完了怎么用呢？是这样的，先初始化一个100个bin的初始值为0的直方图h。每一幅图像不是有很多patch么？我们就再次计算这些patch和和每一个质心的距离，看看每一个patch离哪一个质心最近，那么直方图h中相对应的bin就加1，然后计算完这幅图像所有的 patches之后，就得到了一个bin=100的直方图，然后进行归一化，用这个100维的向量来表示这幅图像。对所有图像计算完成之后，就可以进行分类聚类训练预测之类的了。
+
+
+
+
+这几天忙里偷闲看了一些关于BOW模型的知识，虽然自己做图像检索到目前为止并没有用到过BOW模型，不过了解一下BOW并不是一件毫无意义的事情。网上关于理解BOW模型也很多，而且也很详细，再写一点关于BOW模型的理解，无异于重新造一次轮子，不过我一直坚信重复造轮子并不是完全没有意义的，重要的是你能够从中学到很多的知识，如果可能，你甚而再这个重复造轮子的过程中发现新问题，并进行改进。好了，回归正题。
+
+ 
+
+BOW (bag of words) 模型简介
+Bag of words模型最初被用在文本分类中，将文档表示成特征矢量。它的基本思想是假定对于一个文本，忽略其词序和语法、句法，仅仅将其看做是一些词汇的集合，而文本中的每个词汇都是独立的。简单说就是讲每篇文档都看成一个袋子（因为里面装的都是词汇，所以称为词袋，Bag of words即因此而来），然后看这个袋子里装的都是些什么词汇，将其分类。如果文档中猪、马、牛、羊、山谷、土地、拖拉机这样的词汇多些，而银行、大厦、汽车、公园这样的词汇少些，我们就倾向于判断它是一篇描绘乡村的文档，而不是描述城镇的。举个例子，有如下两个文档：
+
+ 
+
+文档一：Bob likes to play basketball, Jim likes too.
+
+文档二：Bob also likes to play football games.
+
+ 
+
+基于这两个文本文档，构造一个词典：
+
+Dictionary = {1:”Bob”, 2. “like”, 3. “to”, 4. “play”, 5. “basketball”, 6. “also”, 7. “football”，8. “games”, 9. “Jim”, 10. “too”}。
+
+ 
+
+这个词典一共包含10个不同的单词，利用词典的索引号，上面两个文档每一个都可以用一个10维向量表示（用整数数字0~n（n为正整数）表示某个单词在文档中出现的次数）：
+
+1：[1, 2, 1, 1, 1, 0, 0, 0, 1, 1]
+
+2：[1, 1, 1, 1 ,0, 1, 1, 1, 0, 0]
+
+ 
+
+向量中每个元素表示词典中相关元素在文档中出现的次数(下文中，将用单词的直方图表示)。不过，在构造文档向量的过程中可以看到，我们并没有表达单词在原来句子中出现的次序（这是本Bag-of-words模型的缺点之一，不过瑕不掩瑜甚至在此处无关紧要）。
+
+ 
+
+为什么要用BOW模型描述图像
+SIFT特征虽然也能描述一幅图像，但是每个SIFT矢量都是128维的，而且一幅图像通常都包含成百上千个SIFT矢量，在进行相似度计算时，这个计算量是非常大的，通行的做法是用聚类算法对这些矢量数据进行聚类，然后用聚类中的一个簇代表BOW中的一个视觉词，将同一幅图像的SIFT矢量映射到视觉词序列生成码本，这样每一幅图像只用一个码本矢量来描述，这样计算相似度时效率就大大提高了。
+
+ 
+
+构建BOW码本步骤：
+1. 假设训练集有M幅图像，对训练图象集进行预处理。包括图像增强，分割，图像统一格式，统一规格等等。2、提取SIFT特征。对每一幅图像提取SIFT特征（每一幅图像提取多少个SIFT特征不定）。每一个SIFT特征用一个128维的描述子矢量表示，假设M幅图像共提取出N个SIFT特征。3. 用K-means对2中提取的N个SIFT特征进行聚类，K-Means算法是一种基于样本间相似性度量的间接聚类方法，此算法以K为参数，把N个对象分为K个簇，以使簇内具有较高的相似度，而簇间相似度较低。聚类中心有k个（在BOW模型中聚类中心我们称它们为视觉词），码本的长度也就为k，计算每一幅图像的每一个SIFT特征到这k个视觉词的距离，并将其映射到距离最近的视觉词中（即将该视觉词的对应词频+1）。完成这一步后，每一幅图像就变成了一个与视觉词序列相对应的词频矢量。
+
+ 
+
+设视觉词序列为{眼睛 鼻子 嘴}（k=3），则训练集中的图像变为：
+
+第一幅图像：[1 0 0]
+
+第二幅图像：[5 3 4]......
+
+ 
+
+2. 构造码本。码本矢量归一化因为每一幅图像的SIFT特征个数不定，所以需要归一化。如上述例子，归一化后为[1 0 0],1/12*[5 3 4].测试图像也需经过预处理，提取SIFT特征，将这些特征映射到为码本矢量，码本矢量归一化，最后计算其与训练码本的距离，对应最近距离的训练图像认为与测试图像匹配。
+
+ 
+
+当然，在提取sift特征的时候，可以将图像打成很多小的patch，然后对每个patch提取SIFT特征。
+
+ 
+
+总结一下，整个过程其实就做了三件事，首先提取对 n 幅图像分别提取SIFT特征，然后对提取的整个SIFT特征进行k-means聚类得到 k 个聚类中心作为视觉单词表，最后对每幅图像以单词表为规范对该幅图像的每一个SIFT特征点计算它与单词表中每个单词的距离，最近的+1，便可得到该幅图像的码本。实际上第三步是一个统计的过程，所以BOW中向量元素都是非负的。Yunchao Gong 2012年NIPS上有一篇用二进制编码用于图像快速检索的文章就是针对这类元素是非负的特征而设计的编码方案。
+
+
+The issue with representing a categorical variable that has $k$ levels with $k$ variables in regression is that, if the model also has a constant term, then the terms will be linearly dependent and hence the model will be unidentifiable. For example, if the model is $\mu=a_{0}+a_{1}X_{1}+a_{2}X_{2}$ and $X_{2}=1-X_{1}$, then any choice $(\beta_{0},\beta_{1},\beta_{2})$ of the parameter vector is indistinguishable from $(\beta_{0}+\beta_{2},\beta_{1}-\beta_{2},0)$. So although software may be willing to give you estimates for these parameters, they aren't uniquely determined and hence probably won't be very useful.
+
+Penalization will make the model identifiable, but redundant coding will still affect the parameter values in weird ways, given the above.
+
+The effect of a redundant coding on a decision tree (or ensemble of trees) will likely be to overweight the feature in question relative to others, since it's represented with an extra redundant variable and therefore will be chosen more often than it otherwise would be for splits.
+
+
+
+
+\href{https://arxiv.org/abs/1606.07792}{Wide \& Deep Learning for Recommender Systems}
+
+
+\href{https://www.tensorflow.org/tutorials/wide_and_deep}{TensorFlow Wide \& Deep Learning Tutorial}
+
+
+\section{特征选择}
+\href{https://www.zhihu.com/question/28641663}{机器学习中，有哪些特征选择的工程方法？}
+
+
+\section{特征工程}
+\href{http://blog.csdn.net/dream_angel_z/article/details/49388733}{机器学习之特征工程}
+
+\href{http://blog.csdn.net/google19890102/article/details/40019271}{机器学习中的特征——特征选择的方法以及注意点}
+
+\href{https://machinelearningmastery.com/an-introduction-to-feature-selection/}{An Introduction to Feature Selection}
+
+
+\section{评估指标}
+
+\subsection{WOE}
+
+\subsection{IV}
+IV值（Information Value，信息量）：\href{http://blog.csdn.net/kevin7658/article/details/50780391}{数据挖掘模型中的IV和WOE详解}
+
+\subsection{AUC}
+
+\subsection{信息熵}
+
+
+\ifx\mlbook\undefined
+    \end{document}
+\fi

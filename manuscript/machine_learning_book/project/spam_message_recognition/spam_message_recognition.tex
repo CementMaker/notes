@@ -1,0 +1,207 @@
+\ifx\mlbook\undefined
+    \documentclass[10pt,a4paper]{ctexbook}
+    \providecommand{\pathroot}{../..}
+
+    \usepackage[CJKbookmarks,colorlinks,linkcolor=red]{hyperref}
+    \usepackage{geometry}
+    \usepackage{amsmath}
+    \usepackage{minted}
+
+    \geometry{left=3.0cm,right=3.0cm,top=2.5cm,bottom=2.5cm}
+    \setmainfont{SimSun}
+    \XeTeXlinebreaklocale "zh"
+    \XeTeXlinebreakskip = 0pt plus 1pt minus 0.1pt
+
+    \begin{document}
+    \setlength{\baselineskip}{20pt}
+    \title{垃圾短信识别}
+    \author{Donald Cheung\\jianzhang9102@gmail.com}
+    \date{Oct 27, 2017}
+    %\maketitle
+    \tableofcontents
+\fi
+
+\chapter{垃圾短信识别}
+
+\begin{minted}[mathescape,
+               numbersep=5pt,
+               frame=lines,
+               framesep=2mm]{shell}
+#coding: utf-8
+#author: Ryan @ 解惑者学院
+"""基于BOW文本特征的LR模型。
+
+此部分代码仅为示例，还有很多工作可以做，建议自己尝试一下，包括不仅限于：
+
+1. LogisticRegression有一个参数为C，尝试调整C的值，看看结果有什么变化，并思考为什么。
+
+2. 创建字典时，设定的频次阈值为10，尝试设定其它的阈值，观察和思考结果及其影响。是否阈值越小越好，或者越大越好呢？这些都影响什么呢？
+
+3. 打印出字典的内容时，你会发现有很多标点符号，这些对预测结果有影响么？如果有，试着分析影响到底多大；如果没有，那如果优化这部分呢？
+
+4. 创建字典时，仅仅只使用了部分数据（拆分得到的训练集），为什么呢？可以使用所有的数据吗？
+
+5. LogisticRegression有一个参数为penalty，其指定了是使用L1正则还是L2正则，试着改变一下参数，看看结果。并思考L1和L2的区别。
+
+6. 文本转化为特征时，我们使用的是BOW，试着使用TF-IDF特征，观察实验结果是否有提升。尝试着分析结果改变的原因是什么。
+"""
+import sys
+import os
+import collections
+import multiprocessing
+import itertools
+import functools
+import operator
+import array
+import argparse
+
+import numpy as np
+import jieba
+import jieba.posseg as posseg
+import sklearn
+import sklearn.linear_model as linear_model
+
+def fetch_train_test(data_path, test_size=0.2):
+    """读取数据，并拆分数据为训练集和测试集
+    """
+    y = list()
+    text_list = list()
+    for line in open(data_path, "r").xreadlines():
+        label, text = line[:-1].split('\t', 1)
+        text_list.append(list(jieba.cut(text)))
+        y.append(int(label))
+    return sklearn.model_selection.train_test_split(
+                text_list, y, test_size=test_size, random_state=1028)
+
+
+def build_dict(text_list, min_freq=5):
+    """根据传入的文本列表，创建一个最小频次为min_freq的字典，并返回字典word -> wordid
+    """
+    freq_dict = collections.Counter(itertools.chain(*text_list))
+    freq_list = sorted(freq_dict.items(), key=operator.itemgetter(1), reverse=True)
+    words, _ = zip(*filter(lambda wc: wc[1] >= min_freq, freq_list))
+    return dict(zip(words, range(len(words))))
+
+
+def text2vect(text_list, word2id):
+    """将传入的文本转化为向量，返回向量大小为[n_samples, dict_size]
+    """
+    X = list()
+    for text in text_list:
+        vect = array.array('l', [0] * len(word2id))
+        for word in text:
+            if word not in word2id:
+                continue
+            vect[word2id[word]] = 1
+        X.append(vect)
+    return X
+
+
+def evaluate(model, X, y):
+    """评估数据集，并返回评估结果，包括：正确率、AUC值
+    """
+    accuracy = model.score(X, y)
+    fpr, tpr, thresholds = sklearn.metrics.roc_curve(y, model.predict_proba(X)[:, 1], pos_label=1)
+    return accuracy, sklearn.metrics.auc(fpr, tpr)
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--data_path",
+        type=str,
+        default="../data_in/split/train.txt",
+        help="Data file path",
+    )
+    return parser.parse_args()
+
+if __name__ == "__main__":
+    # for Unix-like system only
+    # jieba.enable_parallel(multiprocessing.cpu_count())
+    args = parse_args()
+
+    # step 1. 将原始数据拆分成训练集和测试集
+    X_train, X_test, y_train, y_test = fetch_train_test(args.data_path)
+
+    # step 2. 创建字典
+    word2id = build_dict(X_train, min_freq=10)
+
+    # step 3. 抽取特征
+    X_train = text2vect(X_train, word2id)
+    X_test = text2vect(X_test, word2id)
+
+    # step 4. 训练模型
+    lr = linear_model.LogisticRegression(C=1)
+    lr.fit(X_train, y_train)
+
+    # step 5. 模型评估
+    accuracy, auc = evaluate(lr, X_test, y_test)
+    sys.stdout.write("正确率：%.4f%%\n" % (accuracy * 100))
+    sys.stdout.write("AUC值：%.6f\n" % (auc))
+
+
+$ time python bow_model.py 
+Building prefix dict from the default dictionary ...
+Loading model from cache /var/folders/qz/gyp1bg8s2z902br81p__db480000gn/T/jieba.cache
+Loading model cost 0.455 seconds.
+Prefix dict has been built succesfully.
+训练集正确率：99.1114%
+训练集AUC值：0.999267
+测试集正确率：96.3098%
+测试AUC值：0.990265
+
+real    0m20.091s
+user    0m17.333s
+sys 0m1.426s
+\end{minted}
+
+
+
+
+1、新人练习题-----垃圾短信识别系统
+
+1）问题描述
+
+手机端应用现在需要一个程序，此程序能够对垃圾短信进行识别，并且触发拦截操作。请设计并完成此系统。
+
+2）考察技术点\&思路引导
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|l|l|}
+\hline
+考察点名称 &
+相关技术 &
+应用场景 &
+备注\\
+\hline
+数学基础 &
+贝叶斯公式 &
+贝叶斯公式之优美，能够让我们很轻松的解决此问题。
+此点也是此问题解决方案的数学基础。 &
+\href{http://www.cnblogs.com/leoo2sk/archive/2010/09/17/naive-bayesian-classifier.html}{参考资料} \\
+\hline
+算法基础 &
+AC自动机 &
+文章到词的映射，基于贝叶斯公式的条件独立的假设，需要我们找出一篇文章中出现的所有的关键词，AC 自动机成为了这个过程中的利器。&
+\href{http://blog.csdn.net/niushuai666/article/details/7002823}{参考资料} \\
+\hline
+基础架构思想 &
+NLPC 服务 &
+有很多时候，我们的工程中需要调用外部接口，快速的掌握和学会第三方接口的调用方式，称为开发中必不可少的技能。&
+\href{http://nlp.baidu.com/platform/?r=nlp/api}{参考资料} \\
+\hline
+程序优化基础 &
+模型的训练与调用 &
+有了上面三点作为支撑，下面需要考虑的就是相关的程序优化了，可不要忘记，我们的程序是最终跑在手机端的，所以模型的训练形式与调用形式成为整个程序优化的重点。& \\
+\hline
+\end{tabular}%
+\caption{复合熵}
+\label{tab:complex-entropy}
+\end{table}
+
+
+
+          
+\ifx\mlbook\undefined
+    \end{document}
+\fi

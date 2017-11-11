@@ -13,20 +13,49 @@
 
     \begin{document}
     \setlength{\baselineskip}{20pt}
-    \title{评估指标}
+    \title{模型的优化与评估指标}
     \author{Donald Cheung\\jianzhang9102@gmail.com}
-    \date{Sep 13, 2017}
+    \date{Sep 21, 2017}
     \maketitle
     \tableofcontents
 \fi
 
-\chapter{评估指标}
+\chapter{模型的优化与评估指标}
+\section{模型的优化指标}
+\subsection{对数损失}
 
-\section{准确率}
-\section{召回率}
-\section{F值}
-\section{AUC}
-\section{BLEU}
+\subsection{均方误差}
+对于回归问题来说，最常用的损失函数是均方误差（MSE, mean squared error）\footnote{均方误差也是分类问题中常见的一种损失函数}。它的定义如下：
+\[
+MSE(y, y')=\frac{\sum\limits_{i=1}^{n}{(y_{i}-y'_{i})^2}}{n}
+\]
+
+\subsection{交叉熵}
+交叉熵（cross entropy）是常用的评判方法之一。交叉熵刻画了两个概率分布之间的距离，它是分类问题中使用比较广的一种损失函数。
+
+交叉熵是一个信息论中的概念，它原本是用来估算平均编码长度的。
+
+给定两个概率分布$p$和$q$，通过$q$来表示$p$的交叉熵为：
+\[
+H(p,q)=-\sum\limits_{x}{p(x)\log{q(x)}}
+\]
+从交叉熵的公式中可以看到交叉熵函数不是对称的（$H(p,q) \neq H(q,p)$），它刻画的是通过概率分布$q$来表达概率分布$p$的困难程度。
+
+
+
+
+\section{模型的评估指标}
+\subsection{准确率}
+\subsection{召回率}
+\subsection{F值}
+\subsection{AUC}
+\subsection{BLEU}
+\subsection{NDCG}
+\subsection{LogLoss}
+
+\section{统计学相关}
+\subsection{皮尔逊相关系数}
+\href{https://www.zhihu.com/question/19734616?sort=created}{如何理解皮尔逊相关系数（Pearson Correlation Coefficient）？}
 
 \ifx\mlbook\undefined
     \end{document}

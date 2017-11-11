@@ -14,17 +14,16 @@
 
     \begin{document}
     \setlength{\baselineskip}{20pt}
-    \title{Logistic回归}
+    \title{微积分}
     \author{Donald Cheung\\jianzhang9102@gmail.com}
-    \date{Sep 8, 2017}
+    \date{Nov 10, 2017}
     %\maketitle
     \tableofcontents
 \fi
 
-\chapter{数学基础}
-\section{数据分析}
-\section{概率论}
-\section{线性代数及矩阵}
+\chapter{微积分}
+\href{http://dataunion.org/20714.html}{寻找最优参数解：最速下降法，牛顿下降法，阻尼牛顿法，拟牛顿法DFP/BFGS}
+
 
 \section{梯度下降法}
 这一节用来介绍常用的数学优化算法--梯度下降法，以及相关变形。
@@ -69,6 +68,28 @@ for i in range(0, n):
 \subsubsection{Batch normalization}
 \subsubsection{Early Stopping}
 \subsubsection{Gradient noise}
+
+
+\section{牛顿法}
+\subsection{拟牛顿条件}
+
+\section{拟牛顿法（Quasi-Newton）}
+\subsection{DFP 算法}
+\subsection{BFGS算法}
+\subsection{L-BFGS 算法}
+
+\section{共轭梯度法(Conjugate Gradient)}
+
+
+ 
+学习资料
+\begin{enumerate}
+\item《最优化理论与方法》 袁亚湘 孙文瑜
+\item http://blog.csdn.net/nocml/article/details/8287466
+\item Updating Quasi-Newton Matrices with Limited Storage , Jorge Nocedal
+\item Nonlinear Programming, second edition, Dimitri P. Bertsekas
+\item《广告数据上的大规模机器学习》  夏粉
+\end{enumerate}
 
 \ifx\mlbook\undefined
     \end{document}
