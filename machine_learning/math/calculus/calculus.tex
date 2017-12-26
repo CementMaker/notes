@@ -1,0 +1,215 @@
+\ifx\mlbook\undefined
+    \documentclass[a4paper,10pt]{ctexbook}
+    \providecommand{\pathroot}{../..}
+
+    \usepackage{xeCJK}
+    \usepackage{fontspec}
+    \usepackage{minted}
+    \usepackage[CJKbookmarks,colorlinks,linkcolor=red]{hyperref}
+    \usepackage{geometry}
+    \usepackage{amsmath}
+    \usepackage[format=hang,font=small,textfont=it]{caption}
+    \usepackage{float}
+
+    \setmainfont{Times New Roman}
+    \setsansfont{Helvetica}
+    \setmonofont{Courier New}
+    \setCJKmainfont[BoldFont={SimHei},ItalicFont={SimHei}]{SimSun}
+    \setCJKsansfont{SimSun}
+    \setCJKmonofont{SimSun}
+
+    \geometry{left=3.0cm,right=3.0cm,top=2.5cm,bottom=2.5cm}
+
+    \newenvironment{myquote}{\begin{quote}\kaishu\zihao{-5}}{\end{quote}}
+    \newcommand\degree{^\circ}
+
+    %\XeTeXlinebreaklocale "zh"
+    %\XeTeXlinebreakskip = 0pt plus 1pt minus 0.1pt
+    %\setlength{\baselineskip}{20pt}
+
+    \title{微积分}
+    \author{Donald Cheung\\jianzhang9102@gmail.com}
+    \date{\today \footnote{文档编写开始于2017年11月10日}}
+
+
+    \begin{document}
+    \maketitle
+    \tableofcontents
+\fi
+
+\chapter{微积分}
+\href{http://dataunion.org/20714.html}{寻找最优参数解：最速下降法，牛顿下降法，阻尼牛顿法，拟牛顿法DFP/BFGS}
+
+\section{梯度下降法}
+这一节用来介绍常用的数学优化算法--梯度下降法，以及相关变形。
+
+\href{https://arxiv.org/abs/1609.04747}{An overview of gradient descent optimization algorithms}
+
+\href{http://ruder.io/optimizing-gradient-descent}{An overview of gradient descent optimization algorithms}
+
+这篇文章简单介绍了一下梯度下降法，里面有一些素材可以使用：\href{https://www.analyticsvidhya.com/blog/2017/03/introduction-to-gradient-descent-algorithm-along-its-variants}{Introduction to Gradient Descent Algorithm (along with variants) in Machine Learning}
+
+\begin{minted}{python}
+w = 0
+for i in range(0, n):
+    w = w - 0.1 * f'(w)
+\end{minted}
+
+\begin{table}[H]
+    \begin{tabular}{|l|l|l|l|l|}
+        \hline
+                                & \textbf{batch} & \textbf{mini-batch} & \textbf{Stochastic} & \textbf{Online} \\
+        \hline
+        \textbf{训练集}         & 固定       & 固定               & 固定               & 实时更新 \\
+        \hline
+        \textbf{单次迭代样本数} & 整个训练集 & 训练集的子集       & 单个样本           & 根据具体算法定 \\
+        \hline
+        \textbf{算法复杂度}     & 高         & 一般               & 低                 & 低 \\
+        \hline
+        \textbf{时效性}         & 低         & 一般（delta 模型） & 一般（delta 模型） & 高 \\
+        \hline
+        \textbf{收敛性}         & 稳定       & 较稳定             & 不稳定             & 不稳定 \\
+        \hline
+    \end{tabular}
+\end{table}
+        
+
+\subsection{基本原理}
+
+\subsection{相关变形}
+
+\subsubsection{Batch gradient descent}
+每次迭代的梯度方向计算由所有训练样本共同投票决定，batch GD的损失函数是：
+
+\[
+    J(\theta)=\frac{1}{2m}{\sum_{i=1}^{m}{(h_{\theta}(x^{(i)}) - y^{(i)})^2}}
+\]
+
+训练算法为：
+\begin{align*}
+    & repeate \{ \\
+    &    \theta = \theta - \alpha \frac{1}{m}{\sum_{i=1}^{m}{(h_{\theta}(x^{(i)}) - y^{(i)})x^{(i)}}} \\
+    & \}
+\end{align*}
+什么意思呢，batch GD算法是计算损失函数在整个训练集上的梯度方向，沿着该方向搜寻下一个迭代点。``batch''的含义是训练集中所有样本参与每一轮迭代。
+
+
+\subsubsection{Mini-batch gradient descent}
+batch GD每一轮迭代需要所有样本参与，对于大规模的机器学习应用，经常有billion级别的训练集，计算复杂度非常高。因此，有学者就提出，反正训练集只是数据分布的一个采样集合，我们能不能在每次迭代只利用部分训练集样本呢？这就是mini-batch算法。
+
+假设训练集有$m$个样本，每个mini-batch（训练集的一个子集）有$b$个样本，那么，整个训练集可以分成$\frac{m}{b}$个mini-batch。
+
+
+\subsubsection{Stochastic gradient descent}
+随机梯度下降算法（SGD）是mini-batch GD的一个特殊应用。SGD等价于$b=1$的mini-batch GD。即，每个mini-batch中只有一个训练样本。
+
+\subsubsection{Online}
+随着互联网行业的蓬勃发展，数据变得越来越``廉价''。很多应用有实时的，不间断的训练数据产生。在线学习（Online Learning）算法就是充分利用实时数据的一个训练算法。
+
+Online GD与mini-batch GD/SGD的区别在于，所有训练数据只用一次，然后丢弃。这样做的好处是可以获得模型的变化趋势。比如搜索广告的点击率(CTR)预估模型，网民的点击行为会随着时间改变。用batch算法（每天更新一次）一方面耗时较长（需要对所有历史数据重新训练）；另一方面，无法及时反馈用户的点击行为迁移。而Online Leaning的算法可以实时的最终网民的点击行为迁移。
+
+
+\subsection{Gradient descent optimization algorithms}
+\subsubsection{Momentum}
+\subsubsection{Nesterov accelerated gradient}
+\subsubsection{Adagrad}
+
+
+
+
+\subsubsection{Adadelta}
+原始论文：\href{https://arxiv.org/abs/1212.5701}{ADADELTA: An Adaptive Learning Rate Method}
+
+
+
+
+
+
+\subsubsection{RMSprop}
+\subsubsection{Adam}
+\subsubsection{AdaMax}
+\subsubsection{Nadam}
+\subsubsection{Visualization of algorithms}
+\subsubsection{Which optimizer to choose?}
+
+\subsection{Parallelizing and distributing SGD}
+\subsubsection{Hogwild!}
+\subsubsection{Downpour SGD}
+\subsubsection{Delay-tolerant Algorithms for SGD}
+\subsubsection{TensorFlow}
+
+\subsubsection{Elastic Averaging SGD}
+\subsection{Additional strategies for optimizing SGD}
+\subsubsection{Shuffling and Curriculum Learning}
+\subsubsection{Batch normalization}
+
+\subsubsection{Early Stopping}
+\subsubsection{Gradient noise}
+
+
+\section{牛顿迭代法}
+\subsection{基本原理}
+假设 $f(x) = 0$ 为待求解方程，利用传统方法求解，牛顿法求解方程的公式：
+\[
+f(x_0 + \Delta x) = f(x_0) + f'(x_0)\Delta x
+\]
+即
+\[
+    f(x) = f(x_0) + f'(x_0)(x - x_0)
+\]
+
+令 $f(x) = 0$，我们能够得到迭代公式：
+\[
+    x = x_0 - \frac{f(x_0)}{f'(x_0)} \Rightarrow x_{n+1} = x_n - \frac{f(x_n)}{f'(x_n)}
+\]
+通过逐次迭代，牛顿法将逐步逼近最优值，也就是方程的解。
+
+解决 $f(x) = 0$ 的问题，我们用了一阶泰勒展开：
+\[
+    f(x) = f(x_0) + f'(x_0)*(x-x_0) + o((x-x_0))
+\]
+去掉末位高阶展开项，代入 $x = x_0 + \Delta x$，得到：
+\[
+    f(x) = f(x_0 + \Delta x) = f(x_0) + f'(x_0)\Delta x
+\]
+
+
+那么，要解决 $f'(x) = 0$ 的问题，我们就需要二阶泰勒展开：
+\[
+    f(x) = f(x_0) + f'(x_0)*(x-x_0) + \frac{f''(x_0)}{2}*(x-x_0)^2 + o((x-x_0)^2)
+\]
+去掉末位高阶展开项，代入 $x = x_0+\Delta x$，得到：
+\[
+    f(x) = f(x_0+\Delta x) = f(x_0) + f'(x_0) \Delta x + \frac{f''(x_0) (\Delta x)^2}{2}
+\]
+求导计算： $f'(x) = f'(x_0+\Delta x) = 0$，得到：
+\[
+    [f(x_0) + f'(x_0)(x−x_0) + \frac{f''(x_0)(x−x_0)^2}{2}]′ = 0
+\]
+整理：
+\begin{align*}
+    & f'(x_0) + f''(x_0)(x−x_0) = 0 \\
+    & x = x_0 − \frac{f'(x_0)}{f''(x_0)} \Rightarrow  x_{n+1} = x_n - \frac{f'(x_n)}{f''(x_n)}
+\end{align*}
+
+\subsection{拟牛顿条件}
+
+\section{拟牛顿法（Quasi-Newton）}
+\subsection{DFP 算法}
+\subsection{BFGS算法}
+\subsection{L-BFGS 算法}
+
+
+\section{共轭梯度法(Conjugate Gradient)}
+学习资料
+\begin{enumerate}
+\item《最优化理论与方法》 袁亚湘 孙文瑜
+\item http://blog.csdn.net/nocml/article/details/8287466
+\item Updating Quasi-Newton Matrices with Limited Storage , Jorge Nocedal
+\item Nonlinear Programming, second edition, Dimitri P. Bertsekas
+\item《广告数据上的大规模机器学习》  夏粉
+\end{enumerate}
+
+\ifx\mlbook\undefined
+    \end{document}
+\fi
