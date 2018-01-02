@@ -10,6 +10,7 @@
     \usepackage{amsmath}
     \usepackage[format=hang,font=small,textfont=it]{caption}
     \usepackage{float}
+	\usepackage{subfigure}
 
     \setmainfont{Times New Roman}
     \setsansfont{Helvetica}
@@ -29,7 +30,7 @@
 
     \title{微积分}
     \author{Donald Cheung\\jianzhang9102@gmail.com}
-    \date{\today \footnote{文档编写开始于2017年11月10日}}
+    \date{\today\footnote{文档编写开始于2017年11月10日}}
 
 
     \begin{document}
@@ -77,41 +78,142 @@ for i in range(0, n):
 \subsection{基本原理}
 
 \subsection{相关变形}
+我们的目的是希望能够在所有可能的数据集上拿到最好的结果，但实际上我们无法获得所有的数据集。
+因此在实际的应用中，我们取得是一个是数据集潜在空间的一个抽样，例如训练集。
+
+梯度下降法有3中变形形式，它们之间的区别为我们在计算目标函数的梯度时使用到多少数据，即抽取的样本不同。
+根据数据量的不同，我们在参数更新的精度和更新过程中所需要的时间两个方面做出权衡。
+
 
 \subsubsection{Batch gradient descent}
-每次迭代的梯度方向计算由所有训练样本共同投票决定，batch GD的损失函数是：
-
+Vanilla梯度下降法，又称为批梯度下降法（batch gradient descent），
+在整个训练数据集上计算损失函数关于参数 $\theta$ 的梯度：
+\[
+    \theta = \theta - \eta \cdot \nabla_{\theta}{J(\theta)}
+\]
+其中，
 \[
     J(\theta)=\frac{1}{2m}{\sum_{i=1}^{m}{(h_{\theta}(x^{(i)}) - y^{(i)})^2}}
 \]
 
-训练算法为：
+因为在执行每次更新时，我们需要在整个数据集上计算所有的梯度，所以批梯度下降法的速度会很慢。
+同时，批梯度下降法无法处理超出内存容量限制的数据集。
+批梯度下降法同样也不能在线更新模型，即在运行的过程中，不能增加新的样本。
+
+批梯度下降法的训练算法如下所示：
 \begin{align*}
     & repeate \{ \\
     &    \theta = \theta - \alpha \frac{1}{m}{\sum_{i=1}^{m}{(h_{\theta}(x^{(i)}) - y^{(i)})x^{(i)}}} \\
     & \}
 \end{align*}
-什么意思呢，batch GD算法是计算损失函数在整个训练集上的梯度方向，沿着该方向搜寻下一个迭代点。``batch''的含义是训练集中所有样本参与每一轮迭代。
-
-
-\subsubsection{Mini-batch gradient descent}
-batch GD每一轮迭代需要所有样本参与，对于大规模的机器学习应用，经常有billion级别的训练集，计算复杂度非常高。因此，有学者就提出，反正训练集只是数据分布的一个采样集合，我们能不能在每次迭代只利用部分训练集样本呢？这就是mini-batch算法。
-
-假设训练集有$m$个样本，每个mini-batch（训练集的一个子集）有$b$个样本，那么，整个训练集可以分成$\frac{m}{b}$个mini-batch。
+我们利用梯度的方向和学习率更新参数，学习率决定我们将以多大的步长更新参数。
+对于凸误差函数，批梯度下降法能够保证收敛到全局最小值，对于非凸函数，则收敛到一个局部最小值。
 
 
 \subsubsection{Stochastic gradient descent}
-随机梯度下降算法（SGD）是mini-batch GD的一个特殊应用。SGD等价于$b=1$的mini-batch GD。即，每个mini-batch中只有一个训练样本。
+随机梯度下降法（stochastic gradient descent, SGD）根据每一条训练样本$ x^{(i)}$ 和标签 $y^{(i)}$ 更新参数：
+\[
+    \theta = \theta - \eta \cdot \nabla_{\theta}{J(\theta;x^{(i)};y^{(i)})}
+\]
 
-\subsubsection{Online}
-随着互联网行业的蓬勃发展，数据变得越来越``廉价''。很多应用有实时的，不间断的训练数据产生。在线学习（Online Learning）算法就是充分利用实时数据的一个训练算法。
+对于大数据集，因为批梯度下降法在每一个参数更新之前，会对相似的样本计算梯度，所以在计算过程中会有冗余。
+而SGD在每一次更新中只执行一次，从而消除了冗余。因而，通常SGD的运行速度更快，同时，可以用于在线学习。
+SGD以高方差频繁地更新，导致目标函数出现如图 \ref{fig:sgd_fluctuation} 所示的剧烈波动。
 
-Online GD与mini-batch GD/SGD的区别在于，所有训练数据只用一次，然后丢弃。这样做的好处是可以获得模型的变化趋势。比如搜索广告的点击率(CTR)预估模型，网民的点击行为会随着时间改变。用batch算法（每天更新一次）一方面耗时较长（需要对所有历史数据重新训练）；另一方面，无法及时反馈用户的点击行为迁移。而Online Leaning的算法可以实时的最终网民的点击行为迁移。
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=7cm]{\pathroot/math/calculus/images/sgd_fluctuation.png}
+    \caption{SGD波动}
+    \label{fig:sgd_fluctuation}
+\end{figure}
+
+与批梯度下降法的收敛会使得损失函数陷入局部最小相比，
+由于SGD的波动性，一方面，波动性使得SGD可以跳到新的和潜在更好的局部最优；
+另一方面，这使得最终收敛到特定最小值的过程变得复杂，因为SGD会一直持续波动。
+然而，已经证明当我们缓慢减小学习率，SGD与批梯度下降法具有相同的收敛行为，
+对于非凸优化和凸优化，可以分别收敛到局部最小值和全局最小值。
+与批梯度下降的代码相比，SGD的代码片段仅仅是在对训练样本的遍历和利用每一条样本计算梯度的过程中增加一层循环。
+注意在每一次循环中，最好先随机打乱训练样本。
 
 
-\subsection{Gradient descent optimization algorithms}
+\subsubsection{Mini-batch gradient descent}
+小批量梯度下降法最终结合了上述两种方法的优点，在每次更新时使用$n$个小批量训练样本：
+\[
+    \theta = \theta - \eta \cdot \nabla_{\theta}{J(\theta;x^{(i:i+n)};y^{(i:i+n)})}
+\]
+
+假设训练集有$m$个样本，每个mini-batch（训练集的一个子集）有$b$个样本，
+那么，整个训练集可以分成$\frac{m}{b}$个mini-batch。
+
+这种方法，
+a) 减少参数更新的方差，这样可以得到更加稳定的收敛结果；
+b) 可以利用最新的深度学习库中高度优化的矩阵优化方法，高效地求解每个小批量数据的梯度。
+
+通常，小批量数据的大小在50到256之间，也可以根据不同的应用有所变化。
+当训练神经网络模型时，小批量梯度下降法是典型的选择算法，当使用小批量梯度下降法时，也将其称为SGD。
+
+
+\subsection{相关优化}
+虽然Vanilla小批量梯度下降法并不能保证较好的收敛性，但是需要强调的是，这也给我们留下了如下的一些挑战：
+\begin{itemize}
+    \item 选择一个合适的学习率可能是困难的。
+          学习率太小会导致收敛的速度很慢，学习率太大会妨碍收敛，导致损失函数在最小值附近波动甚至偏离最小值。
+
+    \item 学习率调整试图在训练的过程中通过例如退火的方法调整学习率，
+          即根据预定义的策略或者当相邻两代之间的下降值小于某个阈值时减小学习率。
+          然而，策略和阈值需要预先设定好，因此无法适应数据集的特点。
+
+    \item 此外，对所有的参数更新使用同样的学习率。
+          如果数据是稀疏的，同时，特征的频率差异很大时，我们也许不想以同样的学习率更新所有的参数，
+          对于出现次数较少的特征，我们对其执行更大的学习率。
+
+    \item 高度非凸误差函数普遍出现在神经网络中，在优化这类函数时，
+          另一个关键的挑战是使函数避免陷入无数次优的局部最小值。
+          Dauphin等人指出出现这种困难实际上并不是来自局部最小值，
+          而是来自鞍点，即那些在一个维度上是递增的，而在另一个维度上是递减的。
+          这些鞍点通常被具有相同误差的点包围，因为在任意维度上的梯度都近似为0，所以SGD很难从这些鞍点中逃开。
+\end{itemize}
+
 \subsubsection{Momentum}
+SGD很难通过陡谷，即在一个维度上的表面弯曲程度远大于其他维度的区域，这种情况通常出现在局部最优点附近。
+在这种情况下，SGD摇摆地通过陡谷的斜坡，同时，沿着底部到局部最优点的路径上只是缓慢地前进，
+这个过程如图 \ref{fig:without_momentum} 所示。
+
+\begin{figure}[H]
+    \subfigure[普通SGD]{
+        \begin{minipage}{7cm}
+        \centering
+        \includegraphics[scale=0.5]{\pathroot/math/calculus/images/without_momentum.png}
+        \label{fig:without_momentum}
+        \end{minipage}
+    }
+    \subfigure[带有冲量的SGD]{
+        \begin{minipage}{7cm}
+        \centering
+        \includegraphics[scale=0.5]{\pathroot/math/calculus/images/with_momentum.png}
+        \label{fig:with_momentum}
+        \end{minipage}
+    }
+    \caption{效果对比图}
+\end{figure}
+
+如图 \ref{fig:with_momentum} 所示，动量法是一种帮助SGD在相关方向上加速并抑制摇摆的一种方法。
+动量法将历史步长的更新向量的一个分量 $\gamma$ 增加到当前的更新向量中
+\begin{align*}
+    & v_t = \gamma v_{t-1} + \eta \nabla_{\theta}{J(\theta)} \\
+    & \theta = \theta - v_{t}
+\end{align*}
+动量项 $\gamma$ 通常设置为0.9或者类似的值。
+
+从本质上说，动量法，就像我们从山上推下一个球，球在滚下来的过程中累积动量，变得越来越快
+（直到达到终极速度，如果有空气阻力的存在，则 $\gamma < 1$）。
+同样的事情也发生在参数的更新过程中：对于在梯度点处具有相同的方向的维度，其动量项增大，
+对于在梯度点处改变方向的维度，其动量项减小。
+因此，我们可以得到更快的收敛速度，同时可以减少摇摆。
+
+
 \subsubsection{Nesterov accelerated gradient}
+
 \subsubsection{Adagrad}
 
 
@@ -145,6 +247,15 @@ Online GD与mini-batch GD/SGD的区别在于，所有训练数据只用一次，
 
 \subsubsection{Early Stopping}
 \subsubsection{Gradient noise}
+
+
+\subsubsection{Online}
+随着互联网行业的蓬勃发展，数据变得越来越``廉价''。很多应用有实时的，不间断的训练数据产生。在线学习（Online Learning）算法就是充分利用实时数据的一个训练算法。
+
+Online GD与mini-batch GD/SGD的区别在于，所有训练数据只用一次，然后丢弃。这样做的好处是可以获得模型的变化趋势。比如搜索广告的点击率(CTR)预估模型，网民的点击行为会随着时间改变。用batch算法（每天更新一次）一方面耗时较长（需要对所有历史数据重新训练）；另一方面，无法及时反馈用户的点击行为迁移。而Online Leaning的算法可以实时的最终网民的点击行为迁移。
+
+
+
 
 
 \section{牛顿迭代法}
