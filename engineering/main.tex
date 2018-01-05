@@ -4,6 +4,7 @@
 \usepackage{fontspec}
 \usepackage[CJKbookmarks,colorlinks,linkcolor=red]{hyperref}
 \usepackage{geometry}
+\usepackage{float}
 
 \setmainfont{Times New Roman}
 \setsansfont{Helvetica}
@@ -61,5 +62,36 @@ ZooKeeper在实现这些服务时，首先它设计一种新的数据结构 --- 
           \url{https://github.com/rfletcher/safari-json-formatter}
 
 \end{itemize}
+
+\part{程序语言}
+
+\chapter{shell}
+
+
+\begin{table}[H]
+    \begin{tabular}{|l|l|}
+        \hline
+        变量 & 含义 \\
+        \hline
+        \$0 & 当前脚本的文件名 \\
+        \hline
+        \$n & 传递给脚本或函数的参数。n是一个数字，表示第几个参数。例如，第一个参数是\$1。\\
+        \hline
+        \$\# & 传递给脚本或函数的参数个数。\\
+        \hline
+        \$* & 传递给脚本或函数的所有参数。\\
+        \hline
+        \$@ & 传递给脚本或函数的所有参数。被双引号(" ")包含时，与 \$* 稍有不同，下面将会讲到。\\
+        \hline
+        \$? & 上个命令的退出状态，或函数的返回值。\\
+        \hline
+        \$\$ & 当前shell进程ID。对于shell脚本，就是这些脚本所在的进程ID。\\
+        \hline
+    \end{tabular}
+    \caption{shell特殊变量的含义}
+\end{table}
+
+
+
 
 \end{document} 
