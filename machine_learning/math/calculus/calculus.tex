@@ -10,7 +10,7 @@
     \usepackage{amsmath}
     \usepackage[format=hang,font=small,textfont=it]{caption}
     \usepackage{float}
-	\usepackage{subfigure}
+    \usepackage{subfigure}
 
     \setmainfont{Times New Roman}
     \setsansfont{Helvetica}
@@ -206,7 +206,15 @@ SGD很难通过陡谷，即在一个维度上的表面弯曲程度远大于其�
 因此，我们可以得到更快的收敛速度，同时可以减少摇摆。
 
 
+相关实验：\url{https://github.com/hsmyy/zhihuzhuanlan/blob/master/momentum.ipynb}
+
+
 \subsubsection{Nesterov accelerated gradient}
+
+\url{https://github.com/WarBean/zhihuzhuanlan/blob/master/Momentum_Nesterov.ipynb}
+
+
+
 
 \subsubsection{Adagrad}
 
@@ -215,6 +223,9 @@ SGD很难通过陡谷，即在一个维度上的表面弯曲程度远大于其�
 
 \subsubsection{Adadelta}
 原始论文：\href{https://arxiv.org/abs/1212.5701}{ADADELTA: An Adaptive Learning Rate Method}
+
+
+They are not a solution for all problems, from experience, I find vanilla SGD to be better for Word2Vec and Adadelta for deep recurrent architectures, but YMMV.
 
 
 
@@ -247,6 +258,12 @@ SGD很难通过陡谷，即在一个维度上的表面弯曲程度远大于其�
 随着互联网行业的蓬勃发展，数据变得越来越``廉价''。很多应用有实时的，不间断的训练数据产生。在线学习（Online Learning）算法就是充分利用实时数据的一个训练算法。
 
 Online GD与mini-batch GD/SGD的区别在于，所有训练数据只用一次，然后丢弃。这样做的好处是可以获得模型的变化趋势。比如搜索广告的点击率(CTR)预估模型，网民的点击行为会随着时间改变。用batch算法（每天更新一次）一方面耗时较长（需要对所有历史数据重新训练）；另一方面，无法及时反馈用户的点击行为迁移。而Online Leaning的算法可以实时的最终网民的点击行为迁移。
+
+\subsection{深入阅读材料}
+\begin{enumerate}
+    \item \href{https://arxiv.org/abs/1606.04474}{Learning to learn by gradient descent by gradient descent}
+\end{enumerate}
+
 
 
 
