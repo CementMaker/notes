@@ -1,0 +1,28 @@
+\documentclass[a4paper,10pt]{ctexbook}
+\usepackage{xeCJK}
+\usepackage{fontspec}
+\usepackage{minted}
+\usepackage[CJKbookmarks,colorlinks,linkcolor=red]{hyperref}
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage[format=hang,font=small,textfont=it]{caption}
+\usepackage{float}
+\usepackage{subfigure}
+\usepackage[nottoc]{tocbibind}
+
+\setmainfont{Times New Roman}
+\setsansfont{Helvetica}
+\setmonofont{Courier New}
+\setCJKmainfont[BoldFont={SimHei},ItalicFont={SimHei}]{SimSun}
+\setCJKsansfont{SimSun}
+\setCJKmonofont{SimSun}
+
+\geometry{left=3.0cm,right=3.0cm,top=2.5cm,bottom=2.5cm}
+
+\newenvironment{myquote}{\begin{quote}\kaishu\zihao{-5}}{\end{quote}}
+\newcommand\degree{^\circ}
+\bibliographystyle{plain}
+
+\begin{document}
+\maketitle
+\tableofcontents
