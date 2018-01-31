@@ -1,54 +1,34 @@
 \ifx\mlbook\undefined
-    \documentclass[a4paper,10pt]{ctexbook}
     \providecommand{\pathroot}{../..}
-
-    \usepackage{xeCJK}
-    \usepackage{fontspec}
-    \usepackage{minted}
-    \usepackage[CJKbookmarks,colorlinks,linkcolor=red]{hyperref}
-    \usepackage{geometry}
-    \usepackage{amsmath}
-    \usepackage[format=hang,font=small,textfont=it]{caption}
-    \usepackage{float}
-    \usepackage{subfigure}
-
-    \setmainfont{Times New Roman}
-    \setsansfont{Helvetica}
-    \setmonofont{Courier New}
-    \setCJKmainfont[BoldFont={SimHei},ItalicFont={SimHei}]{SimSun}
-    \setCJKsansfont{SimSun}
-    \setCJKmonofont{SimSun}
-
-    \geometry{left=3.0cm,right=3.0cm,top=2.5cm,bottom=2.5cm}
-
-    \newenvironment{myquote}{\begin{quote}\kaishu\zihao{-5}}{\end{quote}}
-    \newcommand\degree{^\circ}
-
-    %\XeTeXlinebreaklocale "zh"
-    %\XeTeXlinebreakskip = 0pt plus 1pt minus 0.1pt
-    %\setlength{\baselineskip}{20pt}
 
     \title{微积分}
     \author{Donald Cheung\\jianzhang9102@gmail.com}
     \date{\today\footnote{文档编写开始于2017年11月10日}}
 
-
-    \begin{document}
-    \maketitle
-    \tableofcontents
+    \input{\pathroot/common_head}
 \fi
 
 \chapter{微积分}
 \href{http://dataunion.org/20714.html}{寻找最优参数解：最速下降法，牛顿下降法，阻尼牛顿法，拟牛顿法DFP/BFGS}
 
 \section{梯度下降法}
+
 这一节用来介绍常用的数学优化算法--梯度下降法，以及相关变形。
 
 \href{https://arxiv.org/abs/1609.04747}{An overview of gradient descent optimization algorithms}
 
 \href{http://ruder.io/optimizing-gradient-descent}{An overview of gradient descent optimization algorithms}
 
-这篇文章简单介绍了一下梯度下降法，里面有一些素材可以使用：\href{https://www.analyticsvidhya.com/blog/2017/03/introduction-to-gradient-descent-algorithm-along-its-variants}{Introduction to Gradient Descent Algorithm (along with variants) in Machine Learning}
+\href{https://cs.stanford.edu/~ppasupat/a9online/uploads/proximal_notes.pdf}{Proximal and First-Order Methods for Convex Optimization}
+
+
+大规模机器学习模型训练相关的材料：
+\begin{enumerate}
+    \item Facebok: \href{https://arxiv.org/abs/1706.02677}{Accurate, Large Minibatch SGD: Training ImageNet in 1 Hour}
+    \item \href{https://www.zhihu.com/question/60874090}{如何评价Facebook Training ImageNet in 1 Hour这篇论文?}
+    \item \href{https://arxiv.org/abs/1506.08272}{Asynchronous Parallel Stochastic Gradient for Nonconvex Optimization}
+\end{enumerate}
+
 
 \begin{minted}{python}
 w = 0
@@ -94,6 +74,10 @@ Vanilla梯度下降法，又称为批梯度下降法（batch gradient descent）
 其中，
 \[
     J(\theta)=\frac{1}{2m}{\sum_{i=1}^{m}{(h_{\theta}(x^{(i)}) - y^{(i)})^2}}
+\]
+
+\[
+    g_{t} = \frac{\partial f(x_t)}{\partial x_t}
 \]
 
 因为在执行每次更新时，我们需要在整个数据集上计算所有的梯度，所以批梯度下降法的速度会很慢。
@@ -175,6 +159,11 @@ b) 可以利用最新的深度学习库中高度优化的矩阵优化方法，�
 \end{itemize}
 
 \subsubsection{Momentum}
+
+\[
+    \Delta x_{t} = \rho \Delta x_{t-1} - \eta g_{t}
+\]
+
 SGD很难通过陡谷，即在一个维度上的表面弯曲程度远大于其他维度的区域，这种情况通常出现在局部最优点附近。
 在这种情况下，SGD摇摆地通过陡谷的斜坡，同时，沿着底部到局部最优点的路径上只是缓慢地前进，
 这个过程如图 \ref{fig:without_momentum} 所示。
@@ -213,26 +202,46 @@ SGD很难通过陡谷，即在一个维度上的表面弯曲程度远大于其�
 
 \url{https://github.com/WarBean/zhihuzhuanlan/blob/master/Momentum_Nesterov.ipynb}
 
+\begin{align*}
+    & v_t = \gamma v_{t-1} + \eta \nabla_{\theta}{J(\theta - \gamma v_{t-1})} \\
+    & \theta = \theta - v_{t}
+\end{align*}
+
 
 
 
 \subsubsection{Adagrad}
 
-
-
-
-\subsubsection{Adadelta}
-原始论文：\href{https://arxiv.org/abs/1212.5701}{ADADELTA: An Adaptive Learning Rate Method}
-
-
-They are not a solution for all problems, from experience, I find vanilla SGD to be better for Word2Vec and Adadelta for deep recurrent architectures, but YMMV.
-
-
-
+\[
+    \Delta x_{t} = -\frac{\eta}{\sqrt{\sum_{\tau = 1}^{t}{g_{\tau}^2}}} g_{t}
+\]
 
 
 
 \subsubsection{RMSprop}
+
+\begin{align*}
+    E[g^2]_{t} = 0.9 E[g^2]_{t-1} + 0.1 g_{t}^2 \\
+    \theta_{t+1} = \theta_{t} - \frac{\eta}{\sqrt{E[g^2]_{t} + \epsilon}} g_{t}
+\end{align*}
+
+
+
+\subsubsection{Adadelta}
+在梯度下降法中，学习率是一个需要人为设定的超参数，通常通过人工不断的调整，从而选择效果最好的学习率。
+超过这个数值，模型训练的时候无法收敛；小于这个数值，又会导致模型收敛的很慢。
+在很多问题中，选择合适的学习率需要靠直觉去选择，没有科学的选择方法。
+
+Adadelta\cite{Zeiler:2012aa} 通过在每个维度上分别引入一个动态的学习率来避免人工选择学习率时遇到的问题。
+
+\[
+    E[g^2]_t = \rho E[g^2]_{t-1} + (1 - \rho)g_{t}^2
+\]
+
+据说，Adadelta 在深层 RNN 的架构中表现的很好（需要验证）。
+
+
+
 \subsubsection{Adam}
 \subsubsection{AdaMax}
 \subsubsection{Nadam}
@@ -262,6 +271,9 @@ Online GD与mini-batch GD/SGD的区别在于，所有训练数据只用一次，
 \subsection{深入阅读材料}
 \begin{enumerate}
     \item \href{https://arxiv.org/abs/1606.04474}{Learning to learn by gradient descent by gradient descent}
+
+
+
 \end{enumerate}
 
 
@@ -333,5 +345,5 @@ f(x_0 + \Delta x) = f(x_0) + f'(x_0)\Delta x
 \end{enumerate}
 
 \ifx\mlbook\undefined
-    \end{document}
+    \input{\pathroot/common_tail}
 \fi
