@@ -1,0 +1,162 @@
+\ifx\mlbook\undefined
+    \providecommand{\pathroot}{../..}
+
+    \title{隐马尔科夫模型}
+    \author{Donald Cheung\\jianzhang9102@gmail.com}
+    \date{\today\footnote{文档编写开始于2018年01月31日}}
+
+    \input{\pathroot/common_head}
+\fi
+
+\chapter{隐马尔科夫模型}
+
+HMM Tutorial\cite{Rabiner:HMMTutorial}
+
+\section{向前向后算法}
+
+\section{Viterbi算法}
+
+\section{Baum-Welch算法}
+In electrical engineering, computer science, statistical computing and bioinformatics, the Baum-Welch algorithm is used to find the unknown parameters of a hidden Markov model (HMM). It makes use of the forward-backward algorithm and is named for Leonard E. Baum and Lloyd R. Welch.
+
+\subsection{历史}
+Hidden Markov models and the Baum-Welch algorithm were first described in a series of articles by Leonard E. Baum and his peers at the Institute for Defense Analyses in the late 1960s. One of the first major applications of HMMs was to the field of speech processing. In the 1980s, HMMs were emerging as a useful tool in the analysis of biological systems and information, and in particular genetic information. They have since become an important tool in the probabilistic modeling of genomic sequences.
+
+\subsection{问题背景}
+A hidden Markov model describes the joint probability of a collection of ``hidden" and observed discrete random variables.
+It relies on the assumption that the $i$-th hidden variable given the $(i-1)$-th hidden variable is independent of previous hidden variables, and the current observation variables depend only on the current hidden state.
+
+The Baum-Welch algorithm uses the well known EM algorithm to find the maximum likelihood estimate of the parameters of a hidden Markov model given a set of observed feature vectors.
+
+Let $X_{t}$ be a discrete hidden random variable with $N$ possible values (i.e. We assume there are $N$ states in total).
+We assume the $P(X_{t}|X_{t-1})$ is independent of time $t$, which leads to the definition of
+the time-independent stochastic transition matrix
+\[
+    A=\{a_{ij}\}=P(X_{t}=j|X_{t-1}=i).
+\]
+
+The initial state distribution (i.e. when $t=1$) is given by
+\[
+\pi _{i}=P(X_{1}=i).
+\]
+
+The observation variables $Y_{t}$ can take one of $K$ possible values.
+We also assume the observation given the ``hidden" state is time independent.
+The probability of a certain observation $y_{i}$ at time $t$ for state $X_{t}=j$ is given by
+\[
+    b_{j}(y_{i})=P(Y_{t}=y_{i}|X_{t}=j).
+\]
+
+Taking into account all the possible values of $Y_{t}$ and $X_{t}$, we obtain the $N\times K$ matrix
+$B=\{b_j(y_i)\}$ where $b_{j}$ belongs to all the possible states and $y_{i}$ belongs to all the observations.
+
+An observation sequence is given by $Y=(Y_{1}=y_{1},Y_{2}=y_{2},...,Y_{T}=y_{T}).$
+
+Thus we can describe a hidden Markov chain by $\theta =(A,B,\pi).$
+The Baum-Welch algorithm finds a local maximum for $\theta^{*}=\operatorname {arg\,max}_{\theta}P(Y|\theta)$ 
+(i.e. the HMM parameters $\theta$ that maximise the probability of the observation).
+
+\subsection{算法}
+Set $\theta =(A,B,\pi )$ with random initial conditions. They can also be set using prior information about the parameters if it is available; this can speed up the algorithm and also steer it toward the desired local maximum.
+
+\subsubsection{向前算法}
+Let $\alpha_{i}(t)=P(Y_{1}=y_{1},...,Y_{t}=y_{t},X_{t}=i|\theta )$, the probability of seeing the
+$y_{1},y_{2},...,y_{t}$ and being in state $i$ at time $t$. This is found recursively:
+\begin{enumerate}
+    \item ${\displaystyle \alpha _{i}(1)=\pi _{i}b_{i}(y_{1}),}$
+    \item ${\displaystyle \alpha _{i}(t+1)=b_{i}(y_{t+1})\sum _{j=1}^{N}\alpha _{j}(t)a_{ji}.}$
+\end{enumerate}
+
+\subsubsection{反向算法}
+Let $\beta _{i}(t)=P(Y_{t+1}=y_{t+1},...,Y_{T}=y_{T}|X_{t}=i,\theta )$ that is the probability of the ending partial sequence
+$y_{t+1},...,y_{T}$ given starting state $i$ at time $t$.
+
+We calculate $\beta _{i}(t)$ as,
+\begin{enumerate}
+    \item $\beta_{i}(T)=1,$
+    \item $\beta_{i}(t)=\sum _{j=1}^{N}\beta _{j}(t+1)a_{ij}b_{j}(y_{t+1}).$
+\end{enumerate}
+
+\subsubsection{参数更新}
+We can now calculate the temporary variables, according to Bayes' theorem:
+\[
+    \gamma_{i}(t)=P(X_{t}=i|Y,\theta)
+                 ={\frac {P(X_{t}=i,Y|\theta)}{P(Y|\theta)}}
+                 ={\frac {\alpha_{i}(t)\beta_{i}(t)}{\sum_{j=1}^{N}\alpha_{j}(t)\beta_{j}(t)}},
+\]
+which is the probability of being in state $i$ at time $t$ given the observed sequence $Y$ and the parameters $\theta$
+\[
+    \xi _{ij}(t)=P(X_{t}=i,X_{t+1}=j|Y,\theta)
+                ={\frac {P(X_{t}=i,X_{t+1}=j,Y|\theta)}{P(Y|\theta)}}
+                ={\frac {\alpha_{i}(t)a_{ij}\beta_{j}(t+1)b_{j}(y_{t+1})}{\sum_{i=1}^{N}\sum_{j=1}^{N}\alpha_{i}(t)a_{ij}\beta _{j}(t+1)b_{j}(y_{t+1})}},
+\]
+which is the probability of being in state $i$ and $j$ at times $t$ and $t+1$ respectively given the observed sequence $Y$
+and parameters $\theta$.
+
+The denominators of $\gamma_{i}(t)$ and $\xi_{ij}(t)$ are the same;
+they represent the probability of making the observation $Y$ given the parameters $\theta$.
+
+The parameters of the hidden Markov model $\theta$ can now be updated:
+\[
+    \pi_{i}^{*}=\gamma_{i}(1),
+\]
+which is the expected frequency spent in state $i$ at time 1.
+
+\[
+    a_{ij}^{*}={\frac {\sum_{t=1}^{T-1}\xi_{ij}(t)}{\sum_{t=1}^{T-1}\gamma_{i}(t)}},
+\]
+which is the expected number of transitions from state $i$ to state $j$ compared to the expected total number of transitions away from state $i$.
+To clarify, the number of transitions away from state $i$ does not mean transitions to a different state $j$, but to any state including itself.
+This is equivalent to the number of times state $i$ is observed in the sequence from $t=1$ to $t=T−1$.
+
+\[
+    b_{i}^{*}(v_{k})={\frac {\sum_{t=1}^{T}1_{y_{t}=v_{k}}\gamma_{i}(t)}{\sum_{t=1}^{T}\gamma_{i}(t)}},
+\]
+where
+\[
+    1_{y_{t}=v_{k}}={\begin{cases}
+                        1&{\text{if }} y_{t}=v_{k},\\
+                        0&{\text{otherwise}}\\
+                     \end{cases}}
+\]
+is an indicator function, and
+$b_{i}^{*}(v_{k})$ is the expected number of times the output observations have been equal to
+$v_{k}$ while in state $i$ over the expected total number of times in state $i$.
+
+These steps are now repeated iteratively until a desired level of convergence.
+
+Note:
+It is possible to over-fit a particular data set. That is, $P(Y|\theta _{\text{final}})>P(Y|\theta _{\text{true}})$.
+The algorithm also does not guarantee a global maximum.
+
+\section{相关资料}
+
+\begin{enumerate}
+    \item \href{https://codefying.com/2016/09/15/a-tutorial-on-hidden-markov-model-with-a-stock-price-example/}{A Tutorial on Hidden Markov Model with a Stock Price Example – Part 1}
+    \item \href{https://codefying.com/2016/09/19/a-tutorial-on-hidden-markov-model-with-a-stock-price-example-part-2/}{A Tutorial on Hidden Markov Model with a Stock Price Example – Part 2}
+    \item \href{https://en.wikipedia.org/wiki/Baum–Welch_algorithm}{Wikipedia: Baum–Welch algorithm}
+\end{enumerate}
+
+
+
+
+
+\chapter{最大熵隐马模型}
+MEMM
+
+
+\chapter{条件随机场}
+CRF
+
+目前常见的CRF工具包有pocket crf, flexcrf 车crf++
+
+\href{http://blog.csdn.net/aws3217150/article/details/68935789}{条件随机场(Conditional Random Field)简介}
+
+\href{http://people.cs.umass.edu/~mccallum/papers/crf-tutorial.pdf}{An Introduction to Conditional Random Fields for Relational Learning}
+
+\href{https://homepages.inf.ed.ac.uk/csutton/publications/crftutv2.pdf}{An Introduction to Conditional Random Fields}
+
+
+\ifx\mlbook\undefined
+    \input{\pathroot/common_tail}
+\fi

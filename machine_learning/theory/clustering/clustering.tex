@@ -1,0 +1,47 @@
+\ifx\mlbook\undefined
+    \providecommand{\pathroot}{../..}
+
+    \title{聚类}
+    \author{Donald Cheung\\jianzhang9102@gmail.com}
+    \date{\today\footnote{文档编写开始于2018年03月02日}}
+
+    \input{\pathroot/common_head}
+\fi
+
+\chapter{聚类}
+In the clustering problem, we are given a training set $\{x^{(1)}, \cdots, x^{(m)}\}$,
+and want to group the data into a few cohesive ``clusters''.
+Here, $x^{(i)} \in R_n$ as usual; but no labels $y^{(i)}$ are given.
+So, this is an unsupervised learning problem.
+
+\section{k-means}
+The k-means clustering algorithm is as follows:
+\begin{enumerate}
+    \item Initialize \textbf{cluster centroids} $\mu_1, \mu_2, \cdots, \mu_k \in R_n$ randomly.
+    \item Repeat until convergence: \{
+
+            \qquad For every $i$, set
+            \[
+                c^{(i)} := \arg\min\limits_{j}{||x^{(i)} - \mu_j||}^2.
+            \]
+
+            \qquad For each $j$, set
+            \[
+                \mu_j := \frac{\sum_{i=1}^{m}{ 1\{c^{(i)}=j\}x^{(i)} }} {\sum_{i=1}^{m}{ 1\{c^{(i)}=j\} }}
+            \]
+        \}
+\end{enumerate}
+
+Is the k-means algorithm guaranteed to converge? Yes it is, in a certain sense.
+
+In particular, let us define the \textbf{distortion function} to be:
+\[
+    J(c, \mu) = \sum_{i=1}^{m}{||x^{(i)} - \mu_{c^{(i)}}||}
+\]
+
+It can be shown that k-means is exactly coordinate descent on $J$.
+
+
+\ifx\mlbook\undefined
+    \input{\pathroot/common_tail}
+\fi

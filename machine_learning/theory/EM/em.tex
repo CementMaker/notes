@@ -1,0 +1,134 @@
+\ifx\mlbook\undefined
+    \providecommand{\pathroot}{../..}
+
+    \title{EM算法}
+    \author{Donald Cheung\\jianzhang9102@gmail.com}
+    \date{\today\footnote{文档编写开始于2018年03月02日}}
+
+    \input{\pathroot/common_head}
+\fi
+
+\chapter{EM算法}
+
+\section{Jensen不等式}
+
+%\begin{thm}{Jensen不等式}
+\begin{thm}
+设$f$是一个下凸函数，$X$是一个随机变量，于是有：
+\[
+    E[f(X)] \ge f(EX)
+\]
+此外，如果$f$是一个严格下凸函数，则有 $E[f(X)] = f(EX)$ 成立当且仅当 $X=E[X]$ 的概率为1（也就是说，当$X$为一个常量时）。
+对于上凸函数，Jensen不等式同样成立，只是大小的方向改变了。
+\end{thm}
+
+
+\section{EM算法}
+    Suppose we have an estimation problem in which we have a training set $\{x^{(1)}, \cdots, x^{(m)}\}$ consisting of $m$ independent examples.
+We wish to fit the parameters of a model $p(x, z)$ to the data, where the likelihood is given by
+\begin{align*}
+    \ell (\theta) &= \sum\limits_{i=1}^{m}{\log p(x;\theta)} \\
+                  &= \sum\limits_{i=1}^{m}{\log \sum\limits_{z}{p(x,z; \theta)}}.
+\end{align*}
+
+    But, explicitly finding the maximum likelihood estimates of the parameters $\theta$ may be hard.
+Here, the $z^{(i)}$'s are the latent random variables;
+and it is often the case that if the $z^{(i)}$'s were observed, then maximum likelihood estimation would be easy.
+
+    In such a setting, the EM algorithm gives an efficient method for maximum likelihood estimation.
+Maximizing $\ell (\theta)$ explicitly might be difficult, and our strategy will be to instead
+repeatedly construct a lower-bound on $\ell$ (E-step), and then optimize that lower-bound (M-step).
+
+    For each $i$, let $Q_i$ be some distribution over the $z$'s($\sum_{z}{Q_{i}{(z)} = 1}, Q_i(z) \ge 0)$.
+Consider the following:
+\begin{align}
+    \sum\limits_{i}{\log p(x^{(i)}; \theta)}
+        &= \sum\limits_{i}{\log \sum\limits_{z^{(i)}}{p(x^{(i)}, z^{(i)}; \theta)} } \\
+        &= \sum\limits_{i}{\log \sum\limits_{z^{(i)}}{Q_i(z^{(i)}) \frac{p(x^{(i)}, z^{(i)}; \theta)}{Q_i(z^{(i)})}}} \\
+        &\ge \sum\limits_{i}{\sum\limits_{z^{(i)}}{Q_i(z^{(i)}) \log\frac{p(x^{(i)}, z^{(i)}; \theta)}{Q_i(z^{(i)})}}} \label{eq:em_lower}
+\end{align}
+
+    Now, for any set of distributions $Q_i$, the formula \ref{eq:em_lower} gives a lower-bound on $\ell(\theta)$.
+There're many possible choices for the $Q_i$'s. Which should we choose?  Well, if we have some current guess
+$\theta$ of the parameters, it seems natural to try to make the lower-bound tight at that value of $\theta$.
+I.e., we'll make the inequality above hold with equality at our particular value of $\theta$.
+(We'll see later how this enables us to prove that $\ell(\theta)$ increases monotonically with
+successsive iterations of EM.)
+
+    To make the bound tight for a particular value of $\theta$, we need for the step involving Jensen's
+inequality in our derivation above to hold with equality. For this to be true, we know it is sufficient
+that the expectation be taken over a ``constant"-valued random variable. I.e., we require that
+\[
+    \frac{p(x^{(i)},z^{(i)};\theta)}{Q_i(z^{(i)})}=c
+\]
+for some constant $c$ that does not depend on $z^{(i)}$. This is easily accomplished by choosing
+\[
+    Q_i(z^{(i)}) \propto p(x^{(i)}, z^{(i)}; \theta).
+\]
+Actually, since we know $\sum_{z}{Q_i(z^{(i)})} = 1$ (because it is a distribution), this further tells us that
+\begin{align*}
+    Q_i(z^{(i)}) &= \frac{p(x^{(i)},z^{(i)}; \theta)}{\sum_{z}{p(x^{(i)},z^{(i)};\theta)}} \\
+                 &= \frac{p(x^{(i)},z^{(i)}; \theta)}{p(x^{(i)};\theta)} \\
+                 &= p(z^{(i)} | x^{(i)}; \theta)
+\end{align*}
+Thus, we simply set the $Q_i$'s to be the posterior distribution of the $z^{(i)}$'s given $x^{(i)}$ and the setting of the parameters $\theta$.
+
+    Now, for this choice of the $Q_i$'s, equation \ref{eq:em_lower} gives a lower-bound on the
+$\log$-likelihood $\ell$ that we're trying to maximize. This is the E-step.
+In the M-step of the algorithm, we then maximize our formula
+in equation \ref{eq:em_lower} with respect to the parameters to obtain a new setting of the $\theta$'s.
+Repeatedly carrying out these two steps gives us the EM algorithm, which is as follows:
+
+    \qquad Repeat until convergence \{
+
+        \qquad\qquad (E-step) For each $i$, set
+                \[
+                    Q_i(z^{(i)}) := p(z^{(i)}|x^{(i)}; \theta).
+                \]
+
+        \qquad\qquad (M-step) Set
+                \[
+                    \theta := \arg\max \limits_{\theta} \sum\limits_{i} \sum\limits_{z^{(i)}}
+                                Q_i(z^{(i)})\log\frac{p(x^{(i)}, z^{(i)}; \theta)}{Q_i(z^{(i)})}
+                \]
+
+    \qquad \}
+
+    How we know if this algorithm will converge? Well, suppose $\theta^{(t)}$ and $\theta^{(t+1)}$ are the
+parameters from two successive iterations of EM. We will now prove that
+$\ell(\theta^{(t)}) \le \ell(\theta^{(t+1)})$, which shows EM always monotonically improves the $\log$-likelihood.
+The key to showing this result lies in our choice of the $Q_i$'s.
+Specifically, on the iteration of EM in which the parameters had started out as $\theta(t)$,
+we would have chosen $Q_i^{(t)}(z^{(i)}) := p(z^{(i)}|x^{(i)};\theta^{(t)})$. We saw earlier that this choice
+ensures that Jensen's inequality, as applied to get Equation \ref{eq:em_lower}, holds with equality, and hence 
+\[
+    \ell(\theta^{(t)}) = \sum\limits_{i} \sum\limits_{z^{(i)}}
+            Q_i^{(t)}(z^{(i)}) \log\frac{p(x^{(i)},z^{(i)};\theta^{(t)})}{Q_i^{(t)}(z^{(i)})}
+\]
+The parameters $\theta^{(t+1)}$ are then obtained by maximizing the right hand side of the equation above.
+Thus,
+\begin{align*}
+    \ell(\theta^{(t+1)}) & \ge \sum\limits_{i} \sum\limits_{z^{(i)}}
+                            Q_i^{(t)}(z^{(i)}) \log\frac{p(x^{(i)},z^{(i)};\theta^{(t+1)})}{Q_i^{(t)}(z^{(i)})} \\
+                         & \ge \sum\limits_{i} \sum\limits_{z^{(i)}}
+                            Q_i^{(t)}(z^{(i)}) \log\frac{p(x^{(i)},z^{(i)};\theta^{(t)})}{Q_i^{(t)}(z^{(i)})} \\
+                         &= \ell(\theta^{(t)})
+\end{align*}
+
+    Hence, EM causes the likelihood to converge monotonically. In our description of the EM algorithm,
+we said we'd run it until convergence. Given the result that we just showed, one reasonable convergence
+test would be to check if the increase in $\ell(\theta)$ between successive iterations is smaller than
+some tolerance parameter, and to declare convergence if EM is improving $\ell(\theta)$ too slowly.
+
+\textbf{Remark.} If we define
+\[
+    J(Q, \theta) = \sum\limits_{i} \sum\limits_{z^{(i)}}
+                            Q_i(z^{(i)}) \log\frac{p(x^{(i)}, z^{(i)}; \theta)}{Q_i(z^{(i)})}
+\]
+the we know $\ell(\theta) \ge J(Q,\theta)$ from our previous derivation.
+The EM can also be viewed a coordinate ascent on $J$, in which the E-step maximizes it with respect to $Q$,
+and the M-step maximizes it with respect to $\theta$.
+
+\ifx\mlbook\undefined
+    \input{\pathroot/common_tail}
+\fi
