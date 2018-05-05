@@ -1,11 +1,14 @@
-\ifx\mlbook\undefined
-    \providecommand{\pathroot}{../..}
+\ifx\mathnotes\undefined
+    \providecommand{\notesroot}{../..}
+    \providecommand{\calculusroot}{.}
 
     \title{微积分}
     \author{Donald Cheung\\jianzhang9102@gmail.com}
     \date{\today\footnote{文档编写开始于2017年11月10日}}
 
-    \input{\pathroot/common_head}
+    \input{\notesroot/head}
+\else
+    \providecommand{\calculusroot}{\mathroot/calculus}
 \fi
 
 \chapter{微积分}
@@ -106,7 +109,7 @@ SGD以高方差频繁地更新，导致目标函数出现如图 \ref{fig:sgd_flu
 
 \begin{figure}[H]
     \centering
-    \includegraphics[height=7cm]{\pathroot/math/calculus/images/sgd_fluctuation.png}
+    \includegraphics[height=7cm]{\calculusroot/images/sgd_fluctuation.png}
     \caption{SGD波动}
     \label{fig:sgd_fluctuation}
 \end{figure}
@@ -170,11 +173,11 @@ SGD很难通过陡谷，即在一个维度上的表面弯曲程度远大于其�
 
 \begin{figure}[H]
     \subfigure[普通SGD]{
-        \includegraphics[scale=0.5]{\pathroot/math/calculus/images/without_momentum.png}
+        \includegraphics[scale=0.5]{\calculusroot/images/without_momentum.png}
         \label{fig:without_momentum}
     }
     \subfigure[带有冲量的SGD]{
-        \includegraphics[scale=0.5]{\pathroot/math/calculus/images/with_momentum.png}
+        \includegraphics[scale=0.5]{\calculusroot/images/with_momentum.png}
         \label{fig:with_momentum}
     }
     \caption{效果对比图}
@@ -345,6 +348,6 @@ f(x_0 + \Delta x) = f(x_0) + f'(x_0)\Delta x
 \item《广告数据上的大规模机器学习》  夏粉
 \end{enumerate}
 
-\ifx\mlbook\undefined
-    \input{\pathroot/common_tail}
+\ifx\mathnotes\undefined
+    \input{\notesroot/tail}
 \fi
