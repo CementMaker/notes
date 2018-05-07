@@ -1,0 +1,25 @@
+\def\projectsnotes{}
+\ifx\notes\undefined
+    \providecommand{\notesroot}{..}
+    \providecommand{\projectsroot}{.}
+
+    \title{项目实战}
+    \author{Donald Cheung\\jianzhang9102@gmail.com}
+    \date{\today\footnote{文档编写开始于2018年05月06日}}
+
+    \input{\notesroot/head}
+\else
+    \providecommand{\projectsroot}{\notesroot/projects}
+\fi
+
+\include{\projectsroot/language_model/lm}
+
+\chapter{依存分析}
+相关资料：
+\begin{enumerate}
+    \item \href{http://www.hankcs.com/nlp/corpus/chinese-treebank.html}{汉语树库}
+\end{enumerate}
+
+\ifx\notes\undefined
+    \input{\notesroot/tail}
+\fi

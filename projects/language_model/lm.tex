@@ -1,0 +1,109 @@
+\ifx\projectsnotes\undefined
+    \providecommand{\notesroot}{../..}
+    \providecommand{\lmroot}{.}
+
+    \title{语言模型}
+    \author{Donald Cheung\\jianzhang9102@gmail.com}
+    \date{\today\footnote{文档编写开始于2018年05月06日}}
+
+    \input{\notesroot/head}
+\else
+    \providecommand{\lmroot}{\projectsroot/language_model}
+\fi
+
+\chapter{语言模型}
+Language modeling is key to many interesting problems such as speech recognition, machine translation, or image captioning.
+
+\section{数据集介绍}
+
+\subsection{Penn Tree Bank}
+宾州树库（Penn Tree Bank）的词性标签及含义如表 \ref{table:ptb_label} 所示。
+
+\begin{longtable}{| p{.05\linewidth} | p{.05\linewidth} | p{.35\linewidth} | p{.30\linewidth} |}
+\hline
+\rowcolor{SeaGreen3!30!} \textbf{编号} & \textbf{缩写} & \textbf{英文} & \textbf{中文} \\ \hline
+1 & CC & Coordinating conjunction & 并列连接词 \\ \hline
+2 & CD & Cardinal number & 基数 \\ \hline
+3 & DT & Determiner & 限定词 \\ \hline
+4 & EX & Existential there & 存在型there \\ \hline
+5 & FW & Foreign word & 外文单词 \\ \hline
+6 & IN & Preposition/subord, conjunction & 介词/从属，连接词 \\ \hline
+7 & JJ & Adjective & 形容词 \\ \hline
+8 & JJR & Adjective, comparative & 形容词，比较级 \\ \hline
+9 & JJS & Adjective, superlative & 形容词，最高级 \\ \hline
+10 & LS & List item marker & 列表项标记 \\ \hline
+11 & MD & Modal & 情态动词 \\ \hline
+12 & NN & Noun,singular or mass & 名词，可数或不可数 \\ \hline
+13 & NNS & Noun, plural & 名词，复数 \\ \hline
+14 & NNP & Proper noun, singular & 专有名词，单数 \\ \hline
+15 & NNPS & Proper noun, plural & 专有名词，复数 \\ \hline
+16 & PDT & Predeterminer & 前位限定词 \\ \hline
+17 & POS & Possessive ending & 所有格结束词 \\ \hline
+18 & PRP & Personal pronoun & 人称代名词 \\ \hline
+19 & PP\$ & Possessive pronoun & 物主代词，所有格代名词 \\ \hline
+20 & RB & Adverb & 副词 \\ \hline
+21 & RBR & Adverb, comparative & 副词，比较级 \\ \hline
+22 & RBS & Adverb, superlative & 副词，最高级 \\ \hline
+23 & RP & Particle & 小品词 \\ \hline
+24 & SYM & Symbol(mathematical or scientific) & 符号（数学或科学） \\ \hline
+25 & TO & to & To \\ \hline
+26 & UH & Interjection & 感叹词 \\ \hline
+27 & VB & Verb, base form & 动词，基本形态 \\ \hline
+28 & VBD & Verb, past tense & 动词，过去式 \\ \hline
+29 & VBG & Verb, gerund/present participle & 动词，动名词/现在分词 \\ \hline
+30 & VBN & Verb, past participle & 动词，过去分词 \\ \hline
+31 & VBP & Verb, non-3rd ps. sing. Present & 动词，非第三人称单数现在式 \\ \hline
+32 & VBZ & Verb, 3rd ps. sing. Present & 动词，第三人称单数现在式 \\ \hline
+33 & WDT & wh-determiner & wh-限定词 \\ \hline
+34 & WP & wh-pronoun & wh-代词 \\ \hline
+35 & WP\$ & Possessive wh-pronoun & 所有格wh-代词 \\ \hline
+36 & WRB & wh-adverb & wh-副词 \\ \hline
+37 & \# & Pound sign & ＃符号 \\ \hline
+38 & \$ & Dollar sign & 美元符号 \\ \hline
+39 & . & Sentence-final punctuation & 句点 \\ \hline
+40 & , & Comma & 逗号 \\ \hline
+41 & : & Colon, semi-colon & 冒号，分号 \\ \hline
+42 & ( & Left bracket character & 左括号 \\ \hline
+43 & ) & Right bracket character & 右括号 \\ \hline
+44 & “ & Straight double quote & 双引号 \\ \hline
+45 & ‘ & Left open single quote & 左单引号 \\ \hline
+46 & “ & Left open double quote & 左双引号 \\ \hline
+47 & ’ & Right close single quote & 右单引号 \\ \hline
+48 & ” & Right close double quote & 右双引号 \\ \hline
+\caption{PTB标注结果含义}
+\label{table:ptb_label}
+\centering
+\end{longtable}
+
+\subsubsection{相关材料}
+\begin{enumerate}
+\item \href{https://pdfs.semanticscholar.org/182c/4a4074e8577c7ba5cbbc52249e41270c8d64.pdf}{THE PENN TREEBANK: AN OVERVIEW}
+\item \href{https://catalog.ldc.upenn.edu/ldc99t42}{Treebank-3}
+\end{enumerate}
+
+
+\section{RNN语言模型}
+
+\subsection{相关材料}
+\begin{enumerate}
+\item \href{https://www.tensorflow.org/tutorials/recurrent}{TensorFlow: Recurrent Neural Networks}
+\end{enumerate}
+
+\href{http://www.fit.vutbr.cz/~imikolov/rnnlm/simple-examples.tgz}{PTB dataset from Tomas Mikolov's webpage}
+
+The dataset is already preprocessed and contains overall 10000 different words,
+including the end-of-sentence marker and a special symbol (<unk>) for rare words.
+In reader.py, we convert each word to a unique integer identifier,
+in order to make it easy for the neural network to process the data.
+
+The core of the model consists of an LSTM cell that processes one word at a time and
+computes probabilities of the possible values for the next word in the sentence.
+The memory state of the network is initialized with a vector of zeros
+and gets updated after reading each word.
+For computational reasons, we will process data in mini-batches of size batch\_size.
+In this example, it is important to note that current\_batch\_of\_words does not correspond to a ``sentence" of words.
+Every word in a batch should correspond to a time $t$.
+
+\ifx\projectsnotes\undefined
+    \input{\notesroot/tail}
+\fi

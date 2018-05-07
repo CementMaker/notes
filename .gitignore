@@ -7,3 +7,5 @@ _minted-*
 *.out
 *.toc
 *.pdf
+*.bbl
+*.blg
