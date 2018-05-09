@@ -1,0 +1,19 @@
+\def\engineeringnotes{}
+\ifx\notes\undefined
+    \providecommand{\notesroot}{..}
+    \providecommand{\engineeringroot}{.}
+
+    \title{工程技术}
+    \author{Donald Cheung\\jianzhang9102@gmail.com}
+    \date{\today\footnote{文档编写开始于2018年05月09日}}
+
+    \input{\notesroot/head}
+\else
+    \providecommand{\engineeringroot}{\notesroot/engineering}
+\fi
+
+\include{\engineeringroot/Python/Python}
+
+\ifx\notes\undefined
+    \input{\notesroot/tail}
+\fi
