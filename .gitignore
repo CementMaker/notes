@@ -9,3 +9,6 @@ _minted-*
 *.pdf
 *.bbl
 *.blg
+*.lol
+*.nav
+*.snm

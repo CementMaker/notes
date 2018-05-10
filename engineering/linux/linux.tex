@@ -1,0 +1,32 @@
+\ifx\engineeringnotes\undefined
+    \providecommand{\notesroot}{../..}
+    \providecommand{\linuxroot}{.}
+
+    \title{Linux}
+    \author{Donald Cheung\\jianzhang9102@gmail.com}
+    \date{\today\footnote{文档编写开始于2018年05月09日}}
+
+    \input{\notesroot/head}
+\else
+    \providecommand{\linuxroot}{\engineeringroot/Python}
+\fi
+
+\chapter{Linux}
+
+\section{常用工具}
+\subsection{git}
+
+\subsubsection{Syncing a fork}
+Sync a fork of a repository to keep it up-to-date with the upstream repository.
+
+Execute the following commands in order:
+\begin{enumerate}
+    \item git fetch upstream
+    \item git checkout master
+    \item git merge upstream/master
+\end{enumerate}
+
+
+\ifx\engineeringnotes\undefined
+    \input{\notesroot/tail}
+\fi

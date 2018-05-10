@@ -10,7 +10,8 @@
 \usepackage{subfigure}
 \usepackage[nottoc]{tocbibind}
 \usepackage{bm}
-\usepackage[table, x11names]{xcolor}
+\usepackage[table, x11names, dvipsnames]{xcolor}
+\usepackage{color}
 \usepackage{array, booktabs, boldline}
 \usepackage{cellspace}
 \usepackage{longtable}
@@ -26,13 +27,48 @@
 \setcounter{tocdepth}{4}
 
 \geometry{left=3.0cm,right=3.0cm,top=2.5cm,bottom=2.5cm}
+\bibliographystyle{plain}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% minted setting %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usemintedstyle{monokai}
+\definecolor{bg}{HTML}{282828} % from https://github.com/kevinsawicki/monokai
+%\defaultfontfeatures{}
+\newfontfamily\noligsmonofamily[NFSSFamily=noligsmonofamily]{Courier}
+\setminted{fontfamily=noligsmonofamily}
+
+\renewcommand{\theFancyVerbLine}{%
+    \sffamily \textcolor{Dandelion}{\scriptsize \oldstylenums{\arabic{FancyVerbLine}}}}
+
+\newenvironment{jcode}[3]
+{%
+    \VerbatimEnvironment
+    \begin{listing}[h]%
+    \caption{#2}%
+    \label{#3}%
+    \begin{minted}[xleftmargin=18pt,
+                   mathescape,
+                   linenos,
+                   numbersep=5pt,
+                   bgcolor=bg,
+                   frame=lines,
+                   framesep=2mm,
+                   fontsize=\footnotesize]{#1}%
+}
+{%
+    \end{minted}
+    \vspace{-25pt}%
+    \end{listing}%
+}
+\renewcommand{\listingscaption}{代码}%from minted
+\renewcommand{\listoflistingscaption}{代码列表}% from minted
+
 
 \newenvironment{myquote}{\begin{quote}\kaishu\zihao{-5}}{\end{quote}}
 \newcommand\degree{^\circ}
 \newtheorem{thm}{定理}
 
-\bibliographystyle{plain}
 
 \begin{document}
 \maketitle
 \tableofcontents
+\listoflistings
