@@ -86,43 +86,38 @@ web-utf-8
 \subsection{YAML}
 github主页：\href{https://github.com/yaml}{The YAML Project}
 
+假设你有一个YAML配置文件，其内容如\ref{code:yaml-simple-config}所示。
+
+\begin{jcode}{yaml}{YAML代码示例}{code:yaml-simple-config}
+# tree format
+treeroot:
+    branch1:
+        name: Node 1
+        branch1-1:
+            name: Node 1-1
+    branch2:
+        name: Node 2
+        branch2-1:
+            name: Node 2-1
+\end{jcode}
+
+可以通过\ref{code:yaml-simple-usage}的代码获取配置文件的内容。
+
+\begin{jcode}{python}{YAML代码示例}{code:yaml-simple-usage}
+import yaml
+with open('config.yaml') as f:
+    # use safe_load instead load
+    conf = yaml.safe_load(f)
+\end{jcode}
+
+如果想要将现有的项保存成 YAML 文件，则可以采用类似于 \ref{code:yaml-simple-saving} 的代码。
+\begin{jcode}{python}{保存配置到YAML文件中}{code:yaml-simple-saving}
+with open('config.yaml', "w") as f:
+    yaml.dump(conf, f)
+\end{jcode}
+
+
 \subsection{requests}
-
-%\begin{minted}[xleftmargin=18pt, mathescape, linenos, numbersep=5pt, bgcolor=bg, frame=lines, framesep=2mm, fontsize=\footnotesize]{python}
-\begin{jcode}{python}{Python代码示例}{xyz}
-import numpy as np
-def incmatrix(genl1,genl2):
-    m = len(genl1)
-    n = len(genl2)
-\end{jcode}
-\begin{jcode}{python}{abc}{xyz}
-    M = None #to become the incidence matrix
-    VT = np.zeros((n*m,1), int)  #dummy variable
-
-    #compute the bitwise xor matrix
-    M1 = bitxormatrix(genl1)
-    M2 = np.triu(bitxormatrix(genl2),1)
-
-    for i in range(m-1):
-        for j in range(i+1, m):
-            [r,c] = np.where(M2 == M1[i,j])
-            for k in range(len(r)):
-                VT[(i)*n + r[k]] = 1;
-                VT[(i)*n + c[k]] = 1;
-                VT[(j)*n + r[k]] = 1;
-                VT[(j)*n + c[k]] = 1;
-
-                if M is None:
-                    M = np.copy(VT)
-                else:
-                    M = np.concatenate((M, VT), 1)
-
-                VT = np.zeros((n*m,1), int)
-
-    return M
-\end{jcode}
-%\end{minted}
-
 
 \chapter{Python}
 
