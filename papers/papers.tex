@@ -1,0 +1,23 @@
+\def\papersnotes{}
+\ifx\notes\undefined
+    \providecommand{\notesroot}{..}
+    \providecommand{\papersroot}{.}
+
+    \title{论文笔记}
+    \author{Donald Cheung\\jianzhang9102@gmail.com}
+    \date{\today\footnote{文档编写开始于2018年05月17日}}
+
+    \input{\notesroot/head}
+\else
+    \providecommand{\papersroot}{\notesroot/papers}
+\fi
+
+\include{\papersroot/nlp/nlp}
+
+\chapter{图像处理}
+
+\chapter{语音识别}
+
+\ifx\notes\undefined
+    \input{\notesroot/tail}
+\fi
