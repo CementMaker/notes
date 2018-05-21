@@ -1,11 +1,14 @@
-\ifx\mlbook\undefined
-    \providecommand{\pathroot}{../..}
+\ifx\mlnotes\undefined
+    \providecommand{\notesroot}{../..}
+    \providecommand{\hmmroot}{.}
 
     \title{隐马尔科夫模型}
     \author{Donald Cheung\\jianzhang9102@gmail.com}
     \date{\today\footnote{文档编写开始于2018年01月31日}}
 
-    \input{\pathroot/common_head}
+    \input{\notesroot/head}
+\else
+    \providecommand{\fmroot}{\mlroot/hmm}
 \fi
 
 \chapter{隐马尔科夫模型}
@@ -137,26 +140,6 @@ The algorithm also does not guarantee a global maximum.
     \item \href{https://en.wikipedia.org/wiki/Baum–Welch_algorithm}{Wikipedia: Baum–Welch algorithm}
 \end{enumerate}
 
-
-
-
-
-\chapter{最大熵隐马模型}
-MEMM
-
-
-\chapter{条件随机场}
-CRF
-
-目前常见的CRF工具包有pocket crf, flexcrf 车crf++
-
-\href{http://blog.csdn.net/aws3217150/article/details/68935789}{条件随机场(Conditional Random Field)简介}
-
-\href{http://people.cs.umass.edu/~mccallum/papers/crf-tutorial.pdf}{An Introduction to Conditional Random Fields for Relational Learning}
-
-\href{https://homepages.inf.ed.ac.uk/csutton/publications/crftutv2.pdf}{An Introduction to Conditional Random Fields}
-
-
-\ifx\mlbook\undefined
-    \input{\pathroot/common_tail}
+\ifx\mlnotes\undefined
+    \input{\notesroot/tail}
 \fi
