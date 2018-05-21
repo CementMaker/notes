@@ -28,10 +28,32 @@ Quora是美国版的知乎，月活用户超过1亿，很多人会问很类似�
 
 需要注意的是，数据集中的lable是由人为标注的，也就是说并不是100\%正确的。
 
+
+\begin{table}[!htb]
+    \centering
+    \begin{tabular}{|Sc|c|c|c|}
+        \hlineB{2}
+        \rowcolor{SeaGreen3!30!} \textbf{id} & \textbf{question1} & \textbf{question2} & \textbf{is\_duplicate} \\ \hlineB{1.5}
+        1 & Why my answers are collapsed? & Why is my answer collapsed at once? & 0 \\ \hlineB{1.5}
+        2 & How do I post a question in Quora? & How do I ask a question in Quora? & 1 \\ \hlineB{1.5}
+        3 & Can I fit my booboos in a 65ml jar? & Is 1 baba worth 55 booboo (おっぱい) ? & 0 \\
+        \hlineB{2}
+    \end{tabular}
+    \caption{quora数据集样本示例}
+    \label{table:quora_data_sample}
+\end{table}
+
+需要注意的是，原始的数据文件以 $\backslash$r$\backslash$n 表示换行符。
+
 \subsubsection{评估}
 用log loss作为评估标准。
 
-\section{实验}
+
+\subsection{SNLI数据集}
+ Stanford Natural Language Inference (SNLI)
+
+
+\section{Quora Question Pairs实验}
 
 \begin{enumerate}
 \item 基于词频的cosine相似度计算：[2017-03-21 21:20]
@@ -50,13 +72,20 @@ TODO:
 \item 方法参考：https://www.kaggle.com/c/quora-question-pairs/discussion/30340
 \end{itemize}
 
+
+
+\end{enumerate}
+
+\subsection{参考资料}
+
+\begin{enumerate}
+    \item \href{https://github.com/siarez/sentence_pair_classifier}{Tensorflow implementation of Decomposable Attention Model} \\
+        这份代码参考了论文 \cite{Parikh:2016aa}，并采用TensorFlow实现。
+
 \end{enumerate}
 
 
 \section{相关参考文献}
-
-\cite{Parikh:2016aa} 提出
-
 
 \ifx\projectsnotes\undefined
     \input{\notesroot/tail}
