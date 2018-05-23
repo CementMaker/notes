@@ -16,78 +16,608 @@
 \section{Python安装}
 可以通过 python/lib/site-package/myconfig.pth 类似的文件类配置Python的额外库的搜索路径。
 
-\section{字符串编码}
-字符串也是一种数据类型，但是，字符串比较特殊的是还有一个编码问题。
+\section{文本编码}
+在计算机中，所有的数据在存储和运算时都要使用二进制数表示，无论是文字、图片、视频、还是音频文件。
+例如，像a、b、c、d这样的52个字母（包括大写）、以及0、1等数字还有一些常用的符号（例如*、\#、@等）
+在计算机中存储时也要使用二进制数来表示。
+而具体用哪些二进制数字表示哪个符号，当然每个人都可以约定自己的一套（这就叫编码），
+而大家如果要想互相通信而不造成混乱，那么大家就必须使用相同的编码规则。
 
-因为计算机只能处理数字，如果要处理文本，就必须先把文本转换为数字才能处理。
-最早的计算机在设计时采用8个比特（bit）作为一个字节（byte），
-所以，一个字节能表示的最大的整数就是255（二进制11111111=十进制255），
-如果要表示更大的整数，就必须用更多的字节。
-比如两个字节可以表示的最大整数是65535，4个字节可以表示的最大整数是4294967295。
+\subsection{文本编码的发展历史}
 
-由于计算机是美国人发明的，因此，最早只有127个字母被编码到计算机里，
-也就是大小写英文字母、数字和一些符号，这个编码表被称为ASCII编码，
-比如大写字母A的编码是65，小写字母z的编码是122。
+\subsubsection{ASCII}
+计算机是美国人发明的，在早期为了使计算机能够表示字符，
+美国国家标准学会（American National Standard Institute，ANSI）制定了ASCII编码。
+ASCII（American Standard Code for Information Interchange，美国信息交换标准代码）是基于拉丁字母
+的一套电脑编码系统，主要用于显示现代英语和其他西欧语言。起始于50年代后期，在1967年定案。
+它最初是美国国家标准，供不同计算机在相互通信时用作共同遵守的西文字符编码标准，
+它已被国际标准化组织（International Organization for Standardization, ISO）定为国际标准，
+称为ISO 646标准。适用于所有拉丁文字字母。
 
-但是要处理中文显然一个字节是不够的，至少需要两个字节，
-而且还不能和ASCII编码冲突，所以，中国制定了GB2312编码，用来把中文编进去。
+标准 ASCII 只定义了128个字符编码，包括96个文字和32个控制符号。
+128个字符只需要一个字节的7位就能表示所有的字符，因此 ASCII 只使用了一个字节的后7位，最高位都为0。
+每个字符与 ASCII 码的对应关系见表 \ref{table:ascii}\footnote{ascii码官网也可通过网站（\url{https://www.ascii-code.com}）查询}。
 
-你可以想得到的是，全世界有上百种语言，日本把日文编到Shift\_JIS里，
-韩国把韩文编到Euc-kr里，各国有各国的标准，就会不可避免地出现冲突，
-结果就是，在多语言混合的文本中，显示出来会有乱码。
+\begin{longtable}{| p{.10\linewidth} | p{.08\linewidth} | p{.08\linewidth} | p{.10\linewidth} | p{.28\linewidth} | p{.15\linewidth} |}
+\hline
+\tableheadcolor
+\textbf{二进制} & \textbf{八进制} & \textbf{十进制} & \textbf{十六进制} & \textbf{缩写/字符} & \textbf{解释} \\
+\hline
+0000 0000 & 0 & 0 & 00 & NUL(null) & 空字符 \\ \hline
+0000 0001 & 1 & 1 & 01 & SOH(start of headline) & 标题开始 \\ \hline
+0000 0010 & 2 & 2 & 02 & STX (start of text) & 正文开始 \\ \hline
+0000 0011 & 3 & 3 & 03 & ETX (end of text) & 正文结束 \\ \hline
+0000 0100 & 4 & 4 & 04 & EOT (end of transmission) & 传输结束 \\ \hline
+0000 0101 & 5 & 5 & 05 & ENQ (enquiry) & 请求 \\ \hline
+0000 0110 & 6 & 6 & 06 & ACK (acknowledge) & 收到通知 \\ \hline
+0000 0111 & 7 & 7 & 07 & BEL (bell) & 响铃 \\ \hline
+0000 1000 & 10 & 8 & 08 & BS (backspace) & 退格 \\ \hline
+0000 1001 & 11 & 9 & 09 & HT (horizontal tab) & 水平制表符 \\ \hline
+0000 1010 & 12 & 10 & 0A & LF (NL line feed, new line) & 换行键 \\ \hline
+0000 1011 & 13 & 11 & 0B & VT (vertical tab) & 垂直制表符 \\ \hline
+0000 1100 & 14 & 12 & 0C & FF (NP form feed, new page) & 换页键 \\ \hline
+0000 1101 & 15 & 13 & 0D & CR (carriage return) & 回车键 \\ \hline
+0000 1110 & 16 & 14 & 0E & SO (shift out) & 不用切换 \\ \hline
+0000 1111 & 17 & 15 & 0F & SI (shift in) & 启用切换 \\ \hline
+0001 0000 & 20 & 16 & 10 & DLE (data link escape) & 数据链路转义 \\ \hline
+0001 0001 & 21 & 17 & 11 & DC1 (device control 1) & 设备控制1 \\ \hline
+0001 0010 & 22 & 18 & 12 & DC2 (device control 2) & 设备控制2 \\ \hline
+0001 0011 & 23 & 19 & 13 & DC3 (device control 3) & 设备控制3 \\ \hline
+0001 0100 & 24 & 20 & 14 & DC4 (device control 4) & 设备控制4 \\ \hline
+0001 0101 & 25 & 21 & 15 & NAK (negative acknowledge) & 拒绝接收 \\ \hline
+0001 0110 & 26 & 22 & 16 & SYN (synchronous idle) & 同步空闲 \\ \hline
+0001 0111 & 27 & 23 & 17 & ETB (end of trans. block) & 结束传输块 \\ \hline
+0001 1000 & 30 & 24 & 18 & CAN (cancel) & 取消 \\ \hline
+0001 1001 & 31 & 25 & 19 & EM (end of medium) & 媒介结束 \\ \hline
+0001 1010 & 32 & 26 & 1A & SUB (substitute) & 代替 \\ \hline
+0001 1011 & 33 & 27 & 1B & ESC (escape) & 换码(溢出) \\ \hline
+0001 1100 & 34 & 28 & 1C & FS (file separator) & 文件分隔符 \\ \hline
+0001 1101 & 35 & 29 & 1D & GS (group separator) & 分组符 \\ \hline
+0001 1110 & 36 & 30 & 1E & RS (record separator) & 记录分隔符 \\ \hline
+0001 1111 & 37 & 31 & 1F & US (unit separator) & 单元分隔符 \\ \hline
+0010 0000 & 40 & 32 & 20 & (space) & 空格 \\ \hline
+0010 0001 & 41 & 33 & 21 & ! & 叹号 \\ \hline
+0010 0010 & 42 & 34 & 22 & " & 双引号 \\ \hline
+0010 0011 & 43 & 35 & 23 & \# & 井号 \\ \hline
+0010 0100 & 44 & 36 & 24 & \$ & 美元符 \\ \hline
+0010 0101 & 45 & 37 & 25 & \% & 百分号 \\ \hline
+0010 0110 & 46 & 38 & 26 & \& & 和号 \\ \hline
+0010 0111 & 47 & 39 & 27 & ' & 闭单引号 \\ \hline
+0010 1000 & 50 & 40 & 28 & ( & 开括号 \\ \hline
+0010 1001 & 51 & 41 & 29 &) & 闭括号 \\ \hline
+0010 1010 & 52 & 42 & 2A & * & 星号 \\ \hline
+0010 1011 & 53 & 43 & 2B & + & 加号 \\ \hline
+0010 1100 & 54 & 44 & 2C & , & 逗号 \\ \hline
+0010 1101 & 55 & 45 & 2D & - & 减号/破折号 \\ \hline
+0010 1110 & 56 & 46 & 2E & . & 句号 \\ \hline
+0010 1111 & 57 & 47 & 2F & / & 斜杠 \\ \hline
+0011 0000 & 60 & 48 & 30 & 0 & 数字0 \\ \hline
+0011 0001 & 61 & 49 & 31 & 1 & 数字1 \\ \hline
+0011 0010 & 62 & 50 & 32 & 2 & 数字2 \\ \hline
+0011 0011 & 63 & 51 & 33 & 3 & 数字3 \\ \hline
+0011 0100 & 64 & 52 & 34 & 4 & 数字4 \\ \hline
+0011 0101 & 65 & 53 & 35 & 5 & 数字5 \\ \hline
+0011 0110 & 66 & 54 & 36 & 6 & 数字6 \\ \hline
+0011 0111 & 67 & 55 & 37 & 7 & 数字7 \\ \hline
+0011 1000 & 70 & 56 & 38 & 8 & 数字8 \\ \hline
+0011 1001 & 71 & 57 & 39 & 9 & 数字9 \\ \hline
+0011 1010 & 72 & 58 & 3A & : & 冒号 \\ \hline
+0011 1011 & 73 & 59 & 3B & ; & 分号 \\ \hline
+0011 1100 & 74 & 60 & 3C & < & 小于 \\ \hline
+0011 1101 & 75 & 61 & 3D & = & 等号 \\ \hline
+0011 1110 & 76 & 62 & 3E & > & 大于 \\ \hline
+0011 1111 & 77 & 63 & 3F & ? & 问号 \\ \hline
+0100 0000 & 100 & 64 & 40 & @ & 电子邮件符号 \\ \hline
+0100 0001 & 101 & 65 & 41 & A & 大写字母A \\ \hline
+0100 0010 & 102 & 66 & 42 & B & 大写字母B \\ \hline
+0100 0011 & 103 & 67 & 43 & C & 大写字母C \\ \hline
+0100 0100 & 104 & 68 & 44 & D & 大写字母D \\ \hline
+0100 0101 & 105 & 69 & 45 & E & 大写字母E \\ \hline
+0100 0110 & 106 & 70 & 46 & F & 大写字母F \\ \hline
+0100 0111 & 107 & 71 & 47 & G & 大写字母G \\ \hline
+0100 1000 & 110 & 72 & 48 & H & 大写字母H \\ \hline
+0100 1001 & 111 & 73 & 49 & I & 大写字母I \\ \hline
+0100 1010 & 112 & 74 & 4A & J & 大写字母J \\ \hline
+0100 1011 & 113 & 75 & 4B & K & 大写字母K \\ \hline
+0100 1100 & 114 & 76 & 4C & L & 大写字母L \\ \hline
+0100 1101 & 115 & 77 & 4D & M & 大写字母M \\ \hline
+0100 1110 & 116 & 78 & 4E & N & 大写字母N \\ \hline
+0100 1111 & 117 & 79 & 4F & O & 大写字母O \\ \hline
+0101 0000 & 120 & 80 & 50 & P & 大写字母P \\ \hline
+0101 0001 & 121 & 81 & 51 & Q & 大写字母Q \\ \hline
+0101 0010 & 122 & 82 & 52 & R & 大写字母R \\ \hline
+0101 0011 & 123 & 83 & 53 & S & 大写字母S \\ \hline
+0101 0100 & 124 & 84 & 54 & T & 大写字母T \\ \hline
+0101 0101 & 125 & 85 & 55 & U & 大写字母U \\ \hline
+0101 0110 & 126 & 86 & 56 & V & 大写字母V \\ \hline
+0101 0111 & 127 & 87 & 57 & W & 大写字母W \\ \hline
+0101 1000 & 130 & 88 & 58 & X & 大写字母X \\ \hline
+0101 1001 & 131 & 89 & 59 & Y & 大写字母Y \\ \hline
+0101 1010 & 132 & 90 & 5A & Z & 大写字母Z \\ \hline
+0101 1011 & 133 & 91 & 5B & [ & 开方括号 \\ \hline
+0101 1100 & 134 & 92 & 5C & \ & 反斜杠 \\ \hline
+0101 1101 & 135 & 93 & 5D & ] & 闭方括号 \\ \hline
+0101 1110 & 136 & 94 & 5E & \^ & 脱字符 \\ \hline
+0101 1111 & 137 & 95 & 5F & \_ & 下划线 \\ \hline
+0110 0000 & 140 & 96 & 60 & ` & 开单引号 \\ \hline
+0110 0001 & 141 & 97 & 61 & a & 小写字母a \\ \hline
+0110 0010 & 142 & 98 & 62 & b & 小写字母b \\ \hline
+0110 0011 & 143 & 99 & 63 & c & 小写字母c \\ \hline
+0110 0100 & 144 & 100 & 64 & d & 小写字母d \\ \hline
+0110 0101 & 145 & 101 & 65 & e & 小写字母e \\ \hline
+0110 0110 & 146 & 102 & 66 & f & 小写字母f \\ \hline
+0110 0111 & 147 & 103 & 67 & g & 小写字母g \\ \hline
+0110 1000 & 150 & 104 & 68 & h & 小写字母h \\ \hline
+0110 1001 & 151 & 105 & 69 & i & 小写字母i \\ \hline
+0110 1010 & 152 & 106 & 6A & j & 小写字母j \\ \hline
+0110 1011 & 153 & 107 & 6B & k & 小写字母k \\ \hline
+0110 1100 & 154 & 108 & 6C & l & 小写字母l \\ \hline
+0110 1101 & 155 & 109 & 6D & m & 小写字母m \\ \hline
+0110 1110 & 156 & 110 & 6E & n & 小写字母n \\ \hline
+0110 1111 & 157 & 111 & 6F & o & 小写字母o \\ \hline
+0111 0000 & 160 & 112 & 70 & p & 小写字母p \\ \hline
+0111 0001 & 161 & 113 & 71 & q & 小写字母q \\ \hline
+0111 0010 & 162 & 114 & 72 & r & 小写字母r \\ \hline
+0111 0011 & 163 & 115 & 73 & s & 小写字母s \\ \hline
+0111 0100 & 164 & 116 & 74 & t & 小写字母t \\ \hline
+0111 0101 & 165 & 117 & 75 & u & 小写字母u \\ \hline
+0111 0110 & 166 & 118 & 76 & v & 小写字母v \\ \hline
+0111 0111 & 167 & 119 & 77 & w & 小写字母w \\ \hline
+0111 1000 & 170 & 120 & 78 & x & 小写字母x \\ \hline
+0111 1001 & 171 & 121 & 79 & y & 小写字母y \\ \hline
+0111 1010 & 172 & 122 & 7A & z & 小写字母z \\ \hline
+0111 1011 & 173 & 123 & 7B & \{ & 开花括号 \\ \hline
+0111 1100 & 174 & 124 & 7C & | & 垂线 \\ \hline
+0111 1101 & 175 & 125 & 7D & \} & 闭花括号 \\ \hline
+0111 1110 & 176 & 126 & 7E & $\sim$  & 波浪号 \\ \hline
+0111 1111 & 177 & 127 & 7F & DEL (delete) & 删除 \\ \hline
+\caption{标准ASCII编码}
+\label{table:ascii}
+\centering
+\end{longtable}
 
-因此，Unicode应运而生。Unicode把所有语言都统一到一套编码里，这样就不会再有乱码问题了。
+\subsubsection{EASCII(ISO/8859-1)}
+随着计算机慢慢地普及到其他西欧地区时，人们发现还有很多西欧所特有的字符是 ASCII 编码表中没有的，
+于是后来出现了可扩展的 ASCII 叫 EASCII 。顾名思义，它是在 ASCII 的基础上扩展而来，
+把原来的7位扩充到8位，它完全兼容 ASCII ，扩展出来的符号包括表格符号、计算符号、希腊字母和特殊的拉丁符号。
+扩展 ASCII 字符是从128到255（0x80--0xff）的字符。
 
-Unicode标准也在不断发展，但最常用的是用两个字节表示一个字符
-（如果要用到非常偏僻的字符，就需要4个字节）。
-现代操作系统和大多数编程语言都直接支持Unicode。
+然而 EASCII 时代是一个混乱的时代，大家没有统一标准，各自按照自己的标准实现了自己的一套字符编码。
+例如\footnote{参考资料：https://baike.baidu.com/item/扩展ASCII/9882009}
+\begin{enumerate}
+  \item \textbf{IBM 扩展字符集}
+      1981年，当最初的 IBM PC 推出时，视讯卡的 ROM 中烧有一个提供256个字符的字符集，
+      这也成为 IBM 标准的一个重要组成部分。
+      最初的 IBM 扩展字符集包括某些带重音的字符和一个小写希腊字母表（在数学符号中非常有用），
+      还包括一些块型和线状图形字符。附加的字符也被添加到 ASCII 控制字符的编码位置，
+      这是因为大多数控制字符都不是拿来显示用的。
 
-现在，捋一捋ASCII编码和Unicode编码的区别：
-ASCII编码是1个字节，而Unicode编码通常是2个字节。
+      该 IBM 扩展字符集被烧进无数显示卡和印表机的 ROM 中，并被许多应用程序用于修饰其文字模式的显示方式。
+      不过，该字符集并没有为所有使用拉丁字母表的西欧语言提供足够多的带重音字符，而且也不适用于Windows。
+      Windows不需要图形字符，因为它有一个完全图形化的系统。
 
-字母A用ASCII编码是十进制的65，二进制的01000001；
+  \item \textbf{ANSI 字符集}
 
-字符0用ASCII编码是十进制的48，二进制的00110000，
-注意字符'0'和整数0是不同的；
+      在Windows 1.0（1985年11月发行）中，Microsoft 没有完全放弃 IBM 扩展字符集，但它已退居第二重要位置。
+      因为遵循了 ANSI 草案和 ISO 标准，纯 Windows 字符集被称作「ANSI字符集」。
+      ANSI 草案和 ISO 标准最终成为 ANSI/ISO 8859-1-1987，即「American National Standard for
+      Information Processing-8-Bit Single-Byte Coded Graphic Character
+      Sets-Part 1: Latin Alphabet No 1」，通常也简写为「Latin 1」。
 
-汉字中已经超出了ASCII编码的范围，用Unicode编码是十进制的20013，二进制的01001110 00101101。
+  \item \textbf{内码表}
 
-你可以猜测，如果把ASCII编码的A用Unicode编码，只需要在前面补0就可以，
-因此，A的Unicode编码是00000000 01000001。
+      MS-DOS 3.3（1987年4月发行）向 IBM PC 用户引进了内码表（code page）的概念，Windows也使用此概念。
+      内码表定义了字符的映射代码。最初的IBM字符集被称作内码表437，或者「MS-DOS Latin US）。
+      内码表850就是「MS-DOS Latin 1」，它用附加的带重音字母代替了一些线形字符。
+      其他内码表被其他语言定义。最低的128个代码总是相同的；较高的128个代码取决於定义内码表的语言。
 
-新的问题又出现了：如果统一成Unicode编码，乱码问题从此消失了。
-但是，如果你写的文本基本上全部是英文的话，用Unicode编码比ASCII编码需要多一倍的存储空间，在存储和传输上就十分不划算。
+      在MS-DOS中，如果用户为PC的键盘、显示卡和印表机指定了一个内码表，然後在PC上创建、编辑和列印文件，
+      一切都很正常，每件事都会保持一致。然而，如果用户试图与使用不同内码表的用户交换档案，
+      或者在机器上改变内码表，就会产生问题。字符码与错误的字符相关联。
+      应用程序能够将内码表资讯与文件一起保存来试图减少问题的产生，但该策略包括了某些在内码表间转换的工作。
 
-所以，本着节约的精神，又出现了把Unicode编码转化为“可变长编码”的UTF-8编码。
-UTF-8编码把一个Unicode字符根据不同的数字大小编码成1-6个字节，
-常用的英文字母被编码成1个字节，汉字通常是3个字节，只有很生僻的字符才会被编码成4-6个字节。
-如果你要传输的文本包含大量英文字符，用UTF-8编码就能节省空间：
+      虽然内码表最初仅提供了不包括带重音符号字母的附加拉丁字符集，
+      但最终内码表的较高的128个字符还是包括了完整的非拉丁字母，例如希伯来语、希腊语和斯拉夫语。
+      自然，如此多样会导致内码表变得混乱；如果少数带重音的字母未正确显示，那么整个文字便会混乱不堪而不可阅读。
 
-字符	ASCII	Unicode	UTF-8
-A	01000001	00000000 01000001	01000001
-中	x	01001110 00101101	11100100 10111000 10101101
-从上面的表格还可以发现，UTF-8编码有一个额外的好处，
-就是ASCII编码实际上可以被看成是UTF-8编码的一部分，
-所以，大量只支持ASCII编码的历史遗留软件可以在UTF-8编码下继续工作。
+  \item \textbf{内码表的扩展}
 
-搞清楚了ASCII、Unicode和UTF-8的关系，我们就可以总结一下现在计算机系统通用的字符编码工作方式：
+      内码表的扩展正是基于所有这些原因，但是还不够。
+      斯拉夫语的 MS-DOS 内码表855与斯拉夫语的 Windows 内码表1251以及斯拉夫语的 Macintosh 内码表10007不同。
+      每个环境下的内码表都是对该环境所作的标准字符集修正。
+      IBM OS/2也支援多种 EBCDIC 内码表。
+\end{enumerate}
 
-在计算机内存中，统一使用Unicode编码，当需要保存到硬盘或者需要传输的时候，就转换为UTF-8编码。
+虽然有大量的扩展 ASCII 编码存在，但可惜的是这些编码并不相互兼容。扩展 ASCII 不再是国际标准。
 
-用记事本编辑的时候，从文件读取的UTF-8字符被转换为Unicode字符到内存里，
-编辑完成后，保存的时候再把Unicode转换为UTF-8保存到文件：
+\subsubsection{GB2312}
+随着时代的进步，计算机开始普及到千家万户，越来越多使用不同语言的人开始使用计算机。
+但是计算机进入中国不得不面临的一个问题，那就是字符编码。
+常见的汉字至少好几千，这已经大大超出了 ASCII 编码所能表示的字符范围了，即使是 EASCII 也显得杯水车薪。
+于是聪明的中国人自己弄了一套编码叫 GB2312
+\footnote{可以在 \url{http://www.qqxiuzi.cn/bianma/guobiaoma.php} 查看GB2312、GBK、GB18030 字符编码}。
 
-rw-file-utf-8
+GB2312 或 GB2312-80，又称GB0，是中国国家标准简体中文字符集，全称《信息交换用汉字编码字符集·基本集》，
+1981年由中国国家标准总局发布，1981年5月1日实施。GB2312 编码通行于中国大陆；新加坡等地也采用此编码。
+中国大陆几乎所有的中文系统和国际化的软件都支持 GB2312。
 
-浏览网页的时候，服务器会把动态生成的Unicode内容转换为UTF-8再传输到浏览器：
+GB2312 编码共收录了6763个汉字，其中一级汉字3755个，二级汉字3008个；
+同时收录了包括拉丁字母、希腊字母、日文平假名及片假名字母、俄语西里尔字母在内的682个字符。
+同时它还兼容 ASCII，是一种典型的双字节字符集(DBCS)。
+它规定两个连续大于127的字节代表一个汉字，否则就当做 ASCII 来处理。
+GB2312 的出现，基本满足了汉字的计算机处理需要，它所收录的汉字可以覆盖中国大陆99.75\% 的使用频率。
+对于人名、古汉语等方面出现的罕用字，GB2312 不能处理，这导致了后来 GBK 及 GB18030 汉字字符集的出现。
+GB2312 对任意一个图形字符都采用两个字节表示，并对所收汉字进行了“分区”处理，
+每区含有94个汉字／符号，分别对应第一字节和第二字节。这种表示方式也称为区位码。
+\begin{enumerate}
+  \item 01-09 区为特殊符号。
+  \item 16-55 区为一级汉字，按拼音排序。
+  \item 56-87 区为二级汉字，按部首／笔画排序。
+  \item 10-15 区及 88--94 区则未有编码。
+\end{enumerate}
 
-web-utf-8
+GB2312 汉字区的内码范围高字节从B0--F7，低字节从A1--FE，
+占用的码位是 $72 \times 94 = 6768$，其中有5个空位是D7FA--D7FE。
 
-所以你看到很多网页的源码上会有类似<meta charset="UTF-8" />的信息，表示该网页正是用的UTF-8编码。
+早期的计算机运算能力非常弱，而 GB2312 的编码规则无形中又给解码增加了额外负担， 
+所以为了提高汉字的输入性能，一种叫 “汉卡”（见图\ref{fig:hanka}）的硬件出现了，
+它直接负责 GB2312 的编码解码，为 CPU 分担任务。
+\begin{figure}[ht]
+  \centering
+  \includegraphics[scale=1.0]{\pythonroot/images/hanka.jpg}
+  \caption{汉卡}
+  \label{fig:hanka}
+\end{figure}
 
-\subsection{Python字符串编码}
+\subsubsection{GBK}
+GB2312 不能100\%满足中国汉字的需求，尤其是无法处理一些罕见的字和繁体字。
+后来就在 GB2312 的基础上创建了一种叫 GBK 的编码。
+
+GBK 编码标准，全称《汉字内码扩展规范》（GBK），英文名称 Chinese Internal Code Specification。
+GB 即“国标”，K是“扩展”的汉语拼音第一个字母。
+GBK 向下与 GB2312 编码兼容，向上支持 ISO 10646.1 国际标准，是前者向后者过度过程中的一个承上启下的标准。
+GBK 共收录21886个汉字和图形符号，其中汉字（包括部首和构件）21003个，图形符号883个。
+同时还包括 BIG5 中的全部汉字，并收录了藏文、蒙文、维吾尔文等主要的少数民族文字。
+同样 GBK 也是兼容 ASCII 编码的，对于英文字符用1个字节来表示，汉字用两个字节来标识。
+
+GBK 采用双字节表示，总体编码范围为 8140--FEFE 之间，首字节在 81--FE 之间，
+尾字节在 40--FE 之间，剔除 XX7F 一条线。GBK 编码区分三部分：
+\begin{enumerate}
+  \item 汉字区，包括
+      \begin{itemize}
+        \item GBK/2：B0A1--F7FE, 收录 GB2312 汉字 6763 个，按原序排列；0x8140--A0FE，收录 CJK 汉字 6080 个；
+        \item GBK/4：AA40--FEA0，收录 CJK 汉字和增补的汉字 8160 个。
+      \end{itemize}
+  \item 图形符号区，包括
+      \begin{itemize}
+        \item GBK/1：A1A1--A9FE，除 GB2312 的符号外，还增补了其它符号          
+        \item GBK/5：A840--A9A0，扩除非汉字区。
+      \end{itemize}
+  \item 用户自定义区GBK 区域中的空白区，用户可以自己定义字符。
+\end{enumerate}
+
+\subsubsection{GB18030}
+GB18030，全称：国家标准 GB18030-2005《信息技术中文编码字符集》，是中华人民共和国现时最新的内码字集，
+是 GB18030-2000《信息技术信息交换用汉字编码字符集基本集的扩充》的修订版。
+
+GB18030 与 GB2312-1980 和 GBK 兼容，共收录汉字70244个。
+与 UTF 系列编码类似，GB18030 采用多字节编码，每个字可以由 1 个、2 个或 4 个字节组成。
+编码空间庞大，最多可定义161万个字符。支持中国国内少数民族的文字，不需要动用造字区。
+汉字收录范围包含繁体汉字以及日韩汉字 GB18030 编码是一二四字节变长编码。
+\begin{enumerate}
+  \item 单字节，其值从0到0x7F，与 ASCII 编码兼容。
+
+  \item 双字节，第一个字节的值从 0x81 到 0xFE，第二个字节的值从 0x40 到 0xFE（不包括0x7F），与 GBK 标准兼容。
+
+  \item 四字节，第一个字节的值从 0x81 到 0xFE，第二个字节的值从 0x30 到 0x39，
+      第三个字节从 0x81 到 0xFE，第四个字节从 0x30 到 0x39。
+\end{enumerate}
+
+GB18030 可容纳的编码范围巨大， 基本上亚洲所有的少数民族的文字都包含在内了。
+
+\subsubsection{Unicode}
+虽然 GB2312、GBK、GB18030 很好的解决了汉字编码问题，但却不能走向国际舞台。
+因为无论 GB2312 还是 GB18030，它们都是一种 “地区性DBCS”。
+这导致了一个非常麻烦的问题，就是同一个文本文件可能因为编码集问题而在国外计算机中根本无法阅读。
+
+全世界的文字有很多，不同的地区采用不同的编码方案，不利于信息的交流。
+于是统一联盟国际组织决定着手解决这个问题，继而提出了Unicode编码
+\footnote{可以在 \url{http://www.unicode.org/charts/} 查看 Unicode 与各地区的编码}。
+Unicode的学名是“Universal Multiple-Octet Coded Character Set”，简称为UCS。
+Unicode有两种格式：UCS-2 和 UCS-4。
+UCS-2 就是用两个字节编码，一共16个比特位，这样最多可以表示65536个字符。
+不过，要表示全世界所有的字符，显然65536个数字还远远不够，
+因此 Unicode4.0 规范定义了一组附加的字符编码，UCS-4 就是用4个字节编码。
+理论上完全可以涵盖一切语言所用的符号。世界上任何一个字符都可以用一个Unicode编码来表示，
+一旦字符的Unicode编码确定下来后，就不会再改变了。
+
+虽然 Unicode 帮我们解决了字符集统一的问题，但这并不是没有代价的。
+Unicode 规定所有字符都必须用两字节来表示（即使是 ASCII 字符）。
+由于“半角”英文符号只需要用到低8位，
+所以其高8位永远是0，因此这种大气的方案在保存英文文本时会多浪费一倍的空间。
+
+\subsubsection{UTF-8}
+我们已经知道，英文字母只用一个字节表示就够了，如果 Unicode 统一规定，
+每个符号用三个或四个字节表示，那么每个英文字母前都必然有两到三个字节是0，
+这对于存储空间来说是极大的浪费，文本文件的大小会因此大出两三倍，这是难以接受的。
+Unicode 在很长一段时间内无法推广，直到互联网的出现。
+为解决unicode如何在网络上传输的问题，于是面向传输的众多 UTF（UCS Transfer Format）标准出现了。
+常见的 UTF 格式有 UTF-8、UTF-16 和 UTF-32 等。
+顾名思义，UTF-8就是每次8个位传输数据，而UTF-16就是每次16个位。
+UTF-8 就是在互联网上使用最广的一种 Unicode 的实现方式，这是为传输而设计的编码，并使编码无国界，
+这样就可以显示全世界上所有文化的字符了。
+
+UTF-8最大的一个特点，就是它是一种变长的编码方式。
+它可以使用 $1 \sim 4$ 个字节表示一个符号，根据不同的符号而变化字节长度。
+当字符在 ASCII 码的范围时，就用一个字节表示，保留了 ASCII 字符一个字节的编码做为它的一部分
+（注意的是 Unicode 一个中文字符占2个字节，而 UTF-8 一个中文字符占3个字节）。
+对于多字节（$n$ 个字节）的字符，第一个字节的前 $n$ 位都设为1，第 $n + 1$ 位设为0，
+后面字节的前两位都设为10。剩下的二进制位全部用该字符的 Unicode 码填充。
+具体的转换规则如表\ref{table:utf8-coding}所示
+\footnote{可以在 \url{http://www.qqxiuzi.cn/bianma/Unicode-UTF.php} 查看 Unicode 与 UTF-8 编码转换}。
+
+\begin{table}[!htb]
+  \centering
+  \begin{tabular}{|Sc|l|}
+    \hline
+    \tableheadcolor \textbf{Unicode符号范围（十六进制）} & \textbf{UTF-8编码方式(二进制)} \\ \hline
+    0000 0000 -- 0000 007F & 0xxxxxxx \\ \hline
+    0000 0080 -- 0000 07FF & 110xxxxx 10xxxxxx \\ \hline
+    0000 0800 -- 0000 FFFF & 1110xxxx 10xxxxxx 10xxxxxx \\ \hline
+    0001 0000 -- 0010 FFFF & 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx \\ \hline
+  \end{tabular}
+  \caption{UTF-8编码方式}
+  \label{table:utf8-coding}
+\end{table}
+
+以汉字“解”为例，“解”对应的 Unicode 是89E3，对应的区间是0000 0800 -- 0000 FFFF，
+因此它用 UTF-8 表示时需要用3个字节来存储，89E3 用二进制表示是：1000 1001 1110 0011，
+填充到 1110xxxx 10xxxxxx 10xxxxxx 得到 1110\textbf{1000} 10\textbf{100111} 10\textbf{100011}，
+转换成16进制：E8A7A3。因此“解”的 Unicode “89E3” 对应的 UTF-8 编码是“E8A7A3”。
+
+\begin{table}[!htb]
+  \centering
+    \begin{tabular}{|>{\columncolor{SeaGreen3!30!}}Sr|l|}
+    \hline
+    \textbf{中文} & 解 \\ \hline
+    \textbf{Unicode} & \qquad 1000 \quad 100111 \quad 100011 \\ \hline
+    \textbf{编码规则} & 1110xxxx 10xxxxxx 10xxxxxx \\ \hline
+    \textbf{UTF-8} &    11101000 10100111 10100011 \\ \hline
+    \textbf{16进制UTF-8} & \ \ \,E \quad\,8 \quad\ \,A \quad 7 \quad\ \,A \quad\,3 \\ \hline
+  \end{tabular}
+  \caption{中文“解”的 UTF-8 编码}
+  \label{table:jie-utf8-coding}
+\end{table}
+
+\paragraph*{相关资料}
+文本编码是一个极其常见的问题，网络上也有大量相关的材料和讨论。推荐阅读下列材料：
+\begin{enumerate}
+  \item \href{https://www.zhihu.com/question/19677619}{知乎：GB2312、GBK、GB18030 这几种字符集的主要区别是什么？}
+  \item \href{http://web.jobbole.com/89552/}{前端历史课：那些来自洪荒时代的编码知识}
+\end{enumerate}
+
+\subsection{Python编码}
+
+\subsubsection{Python2}
+Python 是 Guido van Rossum 在1992年创造的，那时的 Unicode 还没有发布，
+而 Guido 绝对没想到 Python 这门语言在今天会如此受大家欢迎。
+因此，在 Python2 中默认编码为 ASCII 码，有两种字符序列类型：str 和 unicode 类型，
+它们都是 basestring 的子类。Python2 中还有一个 bytes 类型，与 str 等价。
+可以通过代码 \ref{code:Python2-defaultencoding} 获取默认编码。
+
+\begin{jcode}{python}{获取 Python2 默认编码}{code:Python2-defaultencoding}
+Python 2.7.15 (default, May  1 2018, 16:44:08)
+[GCC 4.2.1 Compatible Apple LLVM 9.1.0 (clang-902.0.39.1)] on darwin
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import sys
+>>> sys.getdefaultencoding()
+'ascii'
+\end{jcode}
+
+在 Python2 源代码文件中如果不显示地指定编码的话，将出现语法错误。
+
+\begin{jcode}{python}{Python2 不指定编码}{code:Python2-coding-exception}
+# test_encoding_exception.py
+print("解惑者")
+\end{jcode}
+
+运行 \ref{code:Python2-coding-exception} 中的代码，将出现如下错误：
+\begin{quote}
+File ``test.py", line 2
+
+SyntaxError: Non-ASCII character `$\backslash$ xe8' in file test.py on line 2, but no encoding declared; see http://python.org/dev/peps/pep-0263/ for details
+\end{quote}
+
+为了在源代码中支持非 ASCII 字符，必须在源文件的第一行或者第二行显示地指定编码格式
+（参考代码 \ref{code:Python2-set-file-encoding-1} 和 代码 \ref{code:Python2-set-file-encoding-2}）。
+
+\begin{jcode}{python}{Python2 制定编码格式}{code:Python2-set-file-encoding-1}
+# coding=utf-8
+\end{jcode}
+
+\begin{jcode}{python}{Python2 制定编码格式}{code:Python2-set-file-encoding-2}
+# -*- coding: utf-8 -*-
+\end{jcode}
+
+对于同一个汉字“解”，用 str 表示时，它对应的就是 utf-8 编码为 `E8A7A3'，
+而用 unicode 表示时，它对应的符号就是 u`89E3'，与 u`解' 是等同的。
+那么在 Python2 中 str 和 unicode 之间是如何转换的呢？
+这两种类型的字符串类型之间的转换就是靠这两个方法 decode 和 encode，具体见图\ref{fig:Python2-str-2-unicode}。
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[scale=0.4]{\pythonroot/images/py2_str2unicode.jpg}
+  \caption{Python2 str 与 unicode 的转换}
+  \label{fig:Python2-str-2-unicode}
+\end{figure}
+
+代码 \ref{code:Python2-str-2-unicode} 中解释了如何在 str 和 unicode 类型之间做转换。
+
+\begin{jcode}{python}{Python2 str 和 unicode 类型之间的转换}{code:Python2-str-2-unicode}
+#从str类型转换到unicode
+s.decode(encoding)   =====>  <type 'str'> to <type 'unicode'>
+#从unicode转换到str
+u.encode(encoding)   =====>  <type 'unicode'> to <type 'str'>
+
+>>> su = u"解" 
+>>> ss = su.encode('utf-8')
+>>> type(ss)
+<type 'str'>
+>>> ss
+'\xe8\xa7\xa3'
+
+>>> sc = ss.decode('utf-8')
+>>> type(sc)
+<type 'unicode'>
+>>> sc
+u'\u89e3'
+\end{jcode}
+
+str(s) 和 unicode(s) 是两个工厂方法，分别返回 str 字符串对象和 unicode 字符串对象，
+str(s) 是 s.encode(`ascii')的简写。
+
+\begin{jcode}{python}{Python2 str(s)方法}{code:Python2-str-s-ascii}
+>>> s3 = u"解惑者"
+>>> s3
+u'\u89e3\u60d1\u8005'
+>>> str(s3)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+UnicodeEncodeError: 'ascii' codec can't encode characters in position 0-2:
+ordinal not in range(128)
+\end{jcode}
+
+上面 s3 是 unicod e类型的字符串，str(s3) 相当于是执行s3.encode(`ascii')。
+因为“解惑者”三个汉字不能用 ascii 码来表示，所以就报错了。
+指定正确的编码：s3.encode(`gbk') 或者 s3.encode(`utf-8') 就不会出现这个问题了。
+类似的unicode有同样的错误：
+\begin{jcode}{python}{Python2 str(s)方法}{code:Python2-str-s-ascii}
+>>> s4 = "解惑者"
+>>> unicode(s4)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+UnicodeDecodeError: 'ascii' codec can't decode byte 0xe8 in position 0:
+ordinal not in range(128)
+>>>
+\end{jcode}
+
+unicode(s4) 等效于 s4.decode(`ascii')，
+因此要正确的转换就要正确指定其编码 s4.decode(`gbk') 或者 s4.decode(`utf-8')。
+
+对于如 unicode 形式的字符串（str类型)：
+
+\begin{jcode}{python}{Python2 str(s)方法}{code:Python2-str-s-ascii}
+s = 'id\u003d215903184\u0026index\u003d0\u0026st\u003d52\u0026sid’
+\end{jcode}
+
+
+转换成真正的unicode需要使用：
+
+\begin{jcode}{python}{Python2 str(s)方法}{code:Python2-str-s-ascii}
+s.decode('unicode-escape')
+\end{jcode}
+
+测试：
+
+\begin{jcode}{python}{Python2 str(s)方法}{code:Python2-str-s-ascii}
+>>> s = 'id\u003d215903184\u0026index\u003d0\u0026st\u003d52\u0026sid\u003d95000\u0026i'
+>>> print(type(s))
+<type 'str'>
+>>> s = s.decode('unicode-escape')
+>>> s
+u'id=215903184&index=0&st=52&sid=95000&i'
+>>> print(type(s))
+<type 'unicode'>
+>>>
+\end{jcode}
+
+
+但是其实还有一种unicode-escape编码集，他是将unicode内存编码值直接存储：
+
+拓展：还有一种string-escape编码集，在2中可以对字节流用string-escape进行编码
+
+在Python3中的 str 对象在Python2中叫做 unicode ，感觉很通俗对吧？
+但 bytes 对象在Python2中叫做 str ，对。。就是你平时用的 str ， 默认的那个。。。
+
+如果你想得到一个文本字符串，你需要在字符串之前加上前缀 u 或者 decode 一下。
+
+搞笑的还不止这么点，Python2中的 str （字节） 对象，竟然有一个 encode 方法！！！而且你别指望它有什么特殊用处，它就是用来报错的，永远都别使用它！！！
+同样的，unicode （文本字符） 对象也有一个用来报错的 decode 方法
+
+
 %有人此时会问，我用 print 语句打印出来怎么是乱码或者是中文，并不是字节序列。这是因为你调用 print 语句的时候，默认进行了隐式解码，为的是让人类看见友好的字符数据 ，也就是默认的进行了str()包装，想看见背后真正的十六进制数，你需要调用魔术方法 _repr_() 。
+\begin{jcode}{python}{代码}{code:python}
+Python 2.7.15 (default, May  1 2018, 16:44:08)
+[GCC 4.2.1 Compatible Apple LLVM 9.1.0 (clang-902.0.39.1)] on darwin
+Type "help", "copyright", "credits" or "license" for more information.
+>>> s = "解惑者"
+>>> type(s)
+<type 'str'>
+>>> s
+'\xe8\xa7\xa3\xe6\x83\x91\xe8\x80\x85'
+>>> s.decode('utf8')
+u'\u89e3\u60d1\u8005'
+>>> t = s.decode('utf8')
+>>> type(t)
+<type 'unicode'>
+>>> t.decode('utf8')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/usr/local/Cellar/python@2/2.7.15/Frameworks/Python.framework/Versions/2.7/lib/python2.7/encodings/utf_8.py", line 16, in decode
+    return codecs.utf_8_decode(input, errors, True)
+UnicodeEncodeError: 'ascii' codec can't encode characters in position 0-2: ordinal not in range(128)
+>>>
+\end{jcode}
 
+
+不知道大家注意到错误信息没有，我们在进行解码，规则是GBK，但它说 无法用 ascii 进行编码 ，这是为什么？
+
+这就是Python2自作聪明为了对一个unicode对象执行解码而进行的隐式编码 ，等于以下代码：
+
+\begin{jcode}{python}{代码}{code:python}
+b.encode('ascii').decode('GBK')
+\end{jcode}
+
+这就是为什么很多人说，Python2的编码很操蛋。
+
+
+
+
+\subsubsection{Python3}
+在 Python3 当中，文本字符串类型（使用 Unicode 数据存储）被命名为 str, 字节字符串类型被命名为 bytes 。
+一般情况下，实例化一个字符串会得到一个 str 对象：
+
+\begin{jcode}{python}{YAML代码示例}{code:yaml-simple-config}
+Python 3.6.5 (v3.6.5:f59c0932b4, Mar 28 2018, 03:03:55)
+[GCC 4.2.1 (Apple Inc. build 5666) (dot 3)] on darwin
+Type "help", "copyright", "credits" or "license" for more information.
+>>> s = "解惑者"
+>>> type(s)
+<class 'str'>
+>>>
+\end{jcode}
+
+所以现在很多人都说，Python3默认是Unicode，也就是这个意思。
+如果你想得到bytes，那就在文本之前加上前缀 b , 或者 encode 一下。
+
+
+\begin{jcode}{python}{YAML代码示例}{code:yaml-simple-config}
+>>> s = "解惑者"
+>>> type(s)
+<class 'str'>
+>>> s
+'解惑者'
+>>> s.encode('GBK')
+b'\xbd\xe2\xbb\xf3\xd5\xdf'
+>>> s.encode('utf8')
+b'\xe8\xa7\xa3\xe6\x83\x91\xe8\x80\x85'
+>>> a = b'hello'
+>>> a.__repr__()
+"b'hello'"
+>>>
+\end{jcode}
+
+所以，很显然，str 对象有一个encode方法，bytes 对象有一个decode方法。
 
 \section{常用内置库}
 \subsection{logging}
@@ -130,8 +660,6 @@ with open('config.yaml', "w") as f:
 
 
 \subsection{requests}
-
-\chapter{Python}
 
 \begin{itemize}
 \item \href{http://www.dengfeilong.com/post/60.html}{python编程中的if \_\_name\_\_ == 'main': 的作用和原理}
@@ -256,10 +784,8 @@ Python就为我们提供了非常完善的基础代码库，覆盖了网络、�
 \section{Python基础}
 \subsection{第一个Python程序}
 在交互式环境的提示符>>>下，直接输入代码，按回车，就可以立刻得到代码执行结果。
-\begin{minted}[mathescape,
-               numbersep=5pt,
-               frame=lines,
-               framesep=2mm]{python}
+%\begin{minted}[mathescape, numbersep=5pt, frame=lines, framesep=2mm]{python} 
+\begin{jcode}{python}{Python代码示例}{code:yaml-simple-config}
 Python 2.7.12 (default, Dec  1 2016, 20:44:50) 
 [GCC 4.2.1 Compatible Apple LLVM 8.0.0 (clang-800.0.42.1)] on darwin
 Type "help", "copyright", "credits" or "license" for more information.
@@ -267,7 +793,7 @@ Type "help", "copyright", "credits" or "license" for more information.
 Hello World
 >>> print('Hello World')
 Hello World
-\end{minted}
+\end{jcode}
 
 也可以将代码保存在脚本文件中，然后调用python解析器来执行程序。
 \begin{minted}[mathescape,

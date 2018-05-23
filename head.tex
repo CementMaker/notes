@@ -15,6 +15,7 @@
 \usepackage{array, booktabs, boldline}
 \usepackage{cellspace}
 \usepackage{longtable}
+\usepackage{enumitem}
 
 \setmainfont{Times New Roman}
 \setsansfont{Helvetica}
@@ -43,7 +44,7 @@
 \newenvironment{jcode}[3]
 {%
     \VerbatimEnvironment
-    \begin{listing}[h]%
+    \begin{listing}[H]%
     \caption{#2}%
     \label{#3}%
     \begin{minted}[xleftmargin=18pt,
@@ -68,6 +69,13 @@
 \newcommand\degree{^\circ}
 \newtheorem{thm}{定理}
 
+\newcommand\tableheadcolor{\rowcolor{SeaGreen3!30!}}
+
+% Set itemize paragraph indent
+\setlist{
+    listparindent=\parindent,
+    parsep=0pt,
+}
 
 \begin{document}
 \maketitle
