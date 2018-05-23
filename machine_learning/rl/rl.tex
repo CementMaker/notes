@@ -1,40 +1,21 @@
-\ifx\mlbook\undefined
-    \documentclass[10pt,a4paper]{ctexbook}
-    \providecommand{\pathroot}{../..}
-
-    \usepackage[CJKbookmarks,colorlinks,linkcolor=red]{hyperref}
-    \usepackage{geometry}
-    \usepackage{amsmath}
-    \usepackage{CJK,CJKnumb}
-    \usepackage{fontspec}
-    \usepackage[table, x11names]{xcolor}
-    \usepackage{array, booktabs, boldline}
-    \usepackage{cellspace}
-    \usepackage{float}
-    \usepackage{amsfonts}
-    \usepackage{color}
-    \usepackage{graphicx}
-    \usepackage{animate}
-
-    \setlength\cellspacetoplimit{4pt}
-    \setlength\cellspacebottomlimit{4pt}
-
-    \geometry{left=3.0cm,right=3.0cm,top=2.5cm,bottom=2.5cm}
-    \setmainfont{SimSun}
-    \XeTeXlinebreaklocale "zh"
-    \XeTeXlinebreakskip = 0pt plus 1pt minus 0.1pt
-    \setlength{\baselineskip}{20pt}
+\ifx\mlnotes\undefined
+    \providecommand{\notesroot}{../..}
+    \providecommand{\rlroot}{.}
 
     \title{强化学习}
     \author{Donald Cheung\\jianzhang9102@gmail.com}
-    \date{Nov 11, 2017}
+    \date{\today\footnote{文档编写开始于2017年11月11日}}
 
-    \begin{document}
-    \maketitle
-    \tableofcontents
+    \input{\notesroot/head}
+\else
+    \providecommand{\rlroot}{\mlroot/rl}
 \fi
 
 \chapter{强化学习}
+
+on-policy vs off-policy
+
+\section{SARAS}
 
 \section{Q-Learning}
 
@@ -45,7 +26,6 @@
     \item \href{http://simplecore-dev.intel.com/nervana/wp-content/uploads/sites/55/2015/12/ProofQlearning.pdf}{Convergence of Q-learning: a simple proof}
     \item \url{https://github.com/yenchenlin/DeepLearningFlappyBird}
 \end{enumerate}
-
 
 \section{待整理材料}
 
@@ -96,11 +76,9 @@
 在Nn的模拟结束之后，它的父节点N以及从根节点到N的路径上的所有节点都会根据本次模拟的结果来添加自己的累计评分。如果在[1]的选择中直接发现了一个游戏结局的话，根据该结局来更新评分。每一次迭代都会拓展搜索树，随着迭代次数的增加，搜索树的规模也不断增加。当到了一定的迭代次数或者时间之后结束，选择根节点下最好的子节点作为本次决策的结果。一次迭代的图例
 \begin{figure}[ht]
     \centering
-    \includegraphics[height=7cm]{\pathroot/theory/reinforcement_learning/images/mcts_approach.jpg}
+    \includegraphics[height=7cm]{\rlroot/images/mcts_approach.jpg}
     \label{fig:mcts_approach}
 \end{figure}
-
-
 
 \end{enumerate}
 
@@ -140,9 +118,6 @@ $<s, a, r, s'>$
 \subsection{bandit老虎机}
 多臂老虎机
 
-
-
-
-\ifx\mlbook\undefined
-    \end{document}
+\ifx\mlnotes\undefined
+    \input{\notesroot/tail}
 \fi
