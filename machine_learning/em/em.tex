@@ -1,11 +1,14 @@
-\ifx\mlbook\undefined
-    \providecommand{\pathroot}{../..}
+\ifx\mlnotes\undefined
+    \providecommand{\notesroot}{../..}
+    \providecommand{\emroot}{.}
 
     \title{EM算法}
     \author{Donald Cheung\\jianzhang9102@gmail.com}
-    \date{\today\footnote{文档编写开始于2018年03月02日}}
+    \date{\today\footnote{文档编写开始于2018年3月2日}}
 
-    \input{\pathroot/common_head}
+    \input{\notesroot/head}
+\else
+    \providecommand{\emroot}{\mlroot/em}
 \fi
 
 \chapter{EM算法}
@@ -129,6 +132,6 @@ the we know $\ell(\theta) \ge J(Q,\theta)$ from our previous derivation.
 The EM can also be viewed a coordinate ascent on $J$, in which the E-step maximizes it with respect to $Q$,
 and the M-step maximizes it with respect to $\theta$.
 
-\ifx\mlbook\undefined
-    \input{\pathroot/common_tail}
+\ifx\mlnotes\undefined
+    \input{\notesroot/tail}
 \fi
