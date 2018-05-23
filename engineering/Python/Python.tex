@@ -412,6 +412,12 @@ Type "help", "copyright", "credits" or "license" for more information.
 >>> import sys
 >>> sys.getdefaultencoding()
 'ascii'
+>>> s = "解惑者"
+>>> type(s)
+<type 'str'>
+>>> s
+'\xe8\xa7\xa3\xe6\x83\x91\xe8\x80\x85'
+>>>
 \end{jcode}
 
 在 Python2 源代码文件中如果不显示地指定编码的话，将出现语法错误。
@@ -431,11 +437,11 @@ SyntaxError: Non-ASCII character `$\backslash$ xe8' in file test.py on line 2, b
 为了在源代码中支持非 ASCII 字符，必须在源文件的第一行或者第二行显示地指定编码格式
 （参考代码 \ref{code:Python2-set-file-encoding-1} 和 代码 \ref{code:Python2-set-file-encoding-2}）。
 
-\begin{jcode}{python}{Python2 制定编码格式}{code:Python2-set-file-encoding-1}
+\begin{jcode}{python}{Python2 指定编码格式}{code:Python2-set-file-encoding-1}
 # coding=utf-8
 \end{jcode}
 
-\begin{jcode}{python}{Python2 制定编码格式}{code:Python2-set-file-encoding-2}
+\begin{jcode}{python}{Python2 指定编码格式}{code:Python2-set-file-encoding-2}
 # -*- coding: utf-8 -*-
 \end{jcode}
 
@@ -473,8 +479,7 @@ u.encode(encoding)   =====>  <type 'unicode'> to <type 'str'>
 u'\u89e3'
 \end{jcode}
 
-str(s) 和 unicode(s) 是两个工厂方法，分别返回 str 字符串对象和 unicode 字符串对象，
-str(s) 是 s.encode(`ascii')的简写。
+str(s) 和 unicode(s) 是两个工厂方法，分别返回 str 字符串对象和 unicode 字符串对象。
 
 \begin{jcode}{python}{Python2 str(s)方法}{code:Python2-str-s-ascii}
 >>> s3 = u"解惑者"
@@ -487,11 +492,11 @@ UnicodeEncodeError: 'ascii' codec can't encode characters in position 0-2:
 ordinal not in range(128)
 \end{jcode}
 
-上面 s3 是 unicod e类型的字符串，str(s3) 相当于是执行s3.encode(`ascii')。
+上面 s3 是 unicode 类型的字符串，str(s3) 相当于是执行s3.encode(`ascii')。
 因为“解惑者”三个汉字不能用 ascii 码来表示，所以就报错了。
 指定正确的编码：s3.encode(`gbk') 或者 s3.encode(`utf-8') 就不会出现这个问题了。
 类似的unicode有同样的错误：
-\begin{jcode}{python}{Python2 str(s)方法}{code:Python2-str-s-ascii}
+\begin{jcode}{python}{Python2 unicode(s)方法}{code:Python2-unicode-s-ascii}
 >>> s4 = "解惑者"
 >>> unicode(s4)
 Traceback (most recent call last):
@@ -504,112 +509,94 @@ ordinal not in range(128)
 unicode(s4) 等效于 s4.decode(`ascii')，
 因此要正确的转换就要正确指定其编码 s4.decode(`gbk') 或者 s4.decode(`utf-8')。
 
-对于如 unicode 形式的字符串（str类型)：
+从上面使用 str(s) 和 unicode(s) 的示例中，我们自然会想到另外一个问题：如果我们对
+unicode 变量使用 decode 方法，对 str 变量使用 encode 方法会怎么样？
 
-\begin{jcode}{python}{Python2 str(s)方法}{code:Python2-str-s-ascii}
-s = 'id\u003d215903184\u0026index\u003d0\u0026st\u003d52\u0026sid’
+\begin{jcode}{python}{Python2 encode decode}{code:Python2-encode-decode}
+>>> s = u"解惑者"
+>>> s
+u'\u89e3\u60d1\u8005'
+>>> s.decode('utf-8')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "PythonPath/Versions/2.7/lib/python2.7/encodings/utf_8.py", line 16, in decode
+    return codecs.utf_8_decode(input, errors, True)
+UnicodeEncodeError: 'ascii' codec can't encode characters in position 0-2:
+ordinal not in range(128)
+>>>
+>>> s = "解惑者"
+>>> s
+'\xe8\xa7\xa3\xe6\x83\x91\xe8\x80\x85'
+>>> s.encode('utf-8')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+UnicodeDecodeError: 'ascii' codec can't decode byte 0xe8 in position 0:
+ordinal not in range(128)
+>>>
 \end{jcode}
 
+对于代码 \ref{code:Python2-encode-decode} 的前半部分，由于 s 是 unicode 变量，
+因此 s.decode(`utf-8') 相当于 s.encode().decode(`utf-8')，但 s 并不是一个有效的 ascii 编码字符。
+同样，对于代码 \ref{code:Python2-encode-decode} 的后半部分，由于 s 是一个 str 变量，
+因此 s.encode(`utf-8') 相当于 s.decode().encode(`utf-8')，但显然 s 并不能用 ascii 解码。
 
-转换成真正的unicode需要使用：
+从上面的示例也可以看出，Python2 并没有严格区分字符流和字节流，
+因此 encode 和 decode 方法的使用比较混乱，导致使用时可能出现各种问题。
+Python3 则严格区分了字符流和字节流，不会有这类问题。
 
-\begin{jcode}{python}{Python2 str(s)方法}{code:Python2-str-s-ascii}
-s.decode('unicode-escape')
-\end{jcode}
+如果不想使用 GBK、utf-8 这些编码，而直接使用 unicode 编码，那么应该怎么做呢？
+在 Python 中 unicode 字符集表示为 `unicode-escape' 编码集。
+与 GBK、utf-8 编码类似，对于 unicode 编码的字符串，可以使用 decode 进行解码，
+见代码\ref{code:Python2-unicode-str-decode}。
 
-测试：
-
-\begin{jcode}{python}{Python2 str(s)方法}{code:Python2-str-s-ascii}
->>> s = 'id\u003d215903184\u0026index\u003d0\u0026st\u003d52\u0026sid\u003d95000\u0026i'
+\begin{jcode}{python}{Python2 unicode解码}{code:Python2-unicode-str-decode}
+>>> s = 'id\u003d215903184\u0026index\u003d0\u0026st\u003d52\u0026sid\u003d95000'
 >>> print(type(s))
 <type 'str'>
 >>> s = s.decode('unicode-escape')
 >>> s
-u'id=215903184&index=0&st=52&sid=95000&i'
+u'id=215903184&index=0&st=52&sid=95000'
 >>> print(type(s))
 <type 'unicode'>
 >>>
 \end{jcode}
 
-
-但是其实还有一种unicode-escape编码集，他是将unicode内存编码值直接存储：
-
-拓展：还有一种string-escape编码集，在2中可以对字节流用string-escape进行编码
-
-在Python3中的 str 对象在Python2中叫做 unicode ，感觉很通俗对吧？
-但 bytes 对象在Python2中叫做 str ，对。。就是你平时用的 str ， 默认的那个。。。
-
-如果你想得到一个文本字符串，你需要在字符串之前加上前缀 u 或者 decode 一下。
-
-搞笑的还不止这么点，Python2中的 str （字节） 对象，竟然有一个 encode 方法！！！而且你别指望它有什么特殊用处，它就是用来报错的，永远都别使用它！！！
-同样的，unicode （文本字符） 对象也有一个用来报错的 decode 方法
-
-
-%有人此时会问，我用 print 语句打印出来怎么是乱码或者是中文，并不是字节序列。这是因为你调用 print 语句的时候，默认进行了隐式解码，为的是让人类看见友好的字符数据 ，也就是默认的进行了str()包装，想看见背后真正的十六进制数，你需要调用魔术方法 _repr_() 。
-\begin{jcode}{python}{代码}{code:python}
-Python 2.7.15 (default, May  1 2018, 16:44:08)
-[GCC 4.2.1 Compatible Apple LLVM 9.1.0 (clang-902.0.39.1)] on darwin
-Type "help", "copyright", "credits" or "license" for more information.
->>> s = "解惑者"
->>> type(s)
-<type 'str'>
->>> s
-'\xe8\xa7\xa3\xe6\x83\x91\xe8\x80\x85'
->>> s.decode('utf8')
-u'\u89e3\u60d1\u8005'
->>> t = s.decode('utf8')
->>> type(t)
-<type 'unicode'>
->>> t.decode('utf8')
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-  File "/usr/local/Cellar/python@2/2.7.15/Frameworks/Python.framework/Versions/2.7/lib/python2.7/encodings/utf_8.py", line 16, in decode
-    return codecs.utf_8_decode(input, errors, True)
-UnicodeEncodeError: 'ascii' codec can't encode characters in position 0-2: ordinal not in range(128)
->>>
-\end{jcode}
-
-
-不知道大家注意到错误信息没有，我们在进行解码，规则是GBK，但它说 无法用 ascii 进行编码 ，这是为什么？
-
-这就是Python2自作聪明为了对一个unicode对象执行解码而进行的隐式编码 ，等于以下代码：
-
-\begin{jcode}{python}{代码}{code:python}
-b.encode('ascii').decode('GBK')
-\end{jcode}
-
-这就是为什么很多人说，Python2的编码很操蛋。
-
-
-
+拓展：还有一种 string-escape 编码集，可以对字节流用 string-escape 进行编码。
 
 \subsubsection{Python3}
-在 Python3 当中，文本字符串类型（使用 Unicode 数据存储）被命名为 str, 字节字符串类型被命名为 bytes 。
-一般情况下，实例化一个字符串会得到一个 str 对象：
+Python2 的字符串编码经常会让人误解，因此 Python3 对字符串编码进行了重新设计。
+在 Python3 当中，文本字符串类型（使用 unicode 数据存储）被命名为 str，字节字符串类型被命名为 bytes，
+二者的转换关系如图 \ref{fig:Python3-str-2-bytes} 所示。
 
-\begin{jcode}{python}{YAML代码示例}{code:yaml-simple-config}
+\begin{figure}[ht]
+  \centering
+  \includegraphics[scale=0.4]{\pythonroot/images/py3_bytes2str.jpg}
+  \caption{Python3 str 与 bytes 的转换}
+  \label{fig:Python3-str-2-bytes}
+\end{figure}
+
+一般情况下，实例化一个字符串会得到一个 str 对象。需要注意的是，这里的 str 对象，
+与 Python2 的 unicode 对象类似，均使用 unicode 编码。
+
+\begin{jcode}{python}{Python3 实例化字符串}{code:Python3-str-init}
 Python 3.6.5 (v3.6.5:f59c0932b4, Mar 28 2018, 03:03:55)
 [GCC 4.2.1 (Apple Inc. build 5666) (dot 3)] on darwin
 Type "help", "copyright", "credits" or "license" for more information.
 >>> s = "解惑者"
 >>> type(s)
 <class 'str'>
+>>> s
+'解惑者'
 >>>
 \end{jcode}
 
-所以现在很多人都说，Python3默认是Unicode，也就是这个意思。
+所以 Python3 也可以认为是默认使用 unicode 编码。
 如果你想得到bytes，那就在文本之前加上前缀 b , 或者 encode 一下。
 
-
-\begin{jcode}{python}{YAML代码示例}{code:yaml-simple-config}
->>> s = "解惑者"
->>> type(s)
-<class 'str'>
->>> s
-'解惑者'
+\begin{jcode}{python}{Python3 encode方法示例}{code:Python3-encode}
 >>> s.encode('GBK')
 b'\xbd\xe2\xbb\xf3\xd5\xdf'
->>> s.encode('utf8')
+>>> s.encode('utf-8')
 b'\xe8\xa7\xa3\xe6\x83\x91\xe8\x80\x85'
 >>> a = b'hello'
 >>> a.__repr__()
@@ -618,8 +605,13 @@ b'\xe8\xa7\xa3\xe6\x83\x91\xe8\x80\x85'
 \end{jcode}
 
 所以，很显然，str 对象有一个encode方法，bytes 对象有一个decode方法。
+需要注意的是，对于 Python2 来说，无论是 str 还是 unicode，均有 encode 和 decode 方法，
+这样就把字符串与字节流混淆了，但str（与Python3的bytes类似）的decode 和
+unicode（与Python3的unicode类似）的 encode 方法本身并没有什么太大的作用。
+Python3 里考虑到了这个特点，因此 str 只有 encode 方法，bytes 只有 decode 方法。
 
 \section{常用内置库}
+
 \subsection{logging}
 
 
