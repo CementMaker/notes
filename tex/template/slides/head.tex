@@ -1,5 +1,5 @@
 \providecommand{\slidestemplateroot}{\notesroot/tex/template/slides}
-\documentclass[a4paper,aspectratio=1610]{beamer}
+\documentclass[a4paper,aspectratio=1610,xcolor={dvipsnames}]{beamer}
 \usepackage[UTF8,noindent]{ctexcap}
 \usepackage{\slidestemplateroot/beamerthemeGelugor}
 
@@ -21,3 +21,34 @@
 
 %% Use any fonts you like.
 \usepackage{helvet}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% minted setting %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{minted}
+\usemintedstyle{monokai}
+\definecolor{codebg}{HTML}{282828} % from https://github.com/kevinsawicki/monokai
+\newfontfamily\noligsmonofamily[NFSSFamily=noligsmonofamily]{Courier}
+\setminted{fontfamily=noligsmonofamily}
+
+\renewcommand{\theFancyVerbLine}{%
+    \sffamily \textcolor{Dandelion}{\tiny \oldstylenums{\arabic{FancyVerbLine}}}}
+
+\newenvironment{jcode}[2]
+{%
+    \VerbatimEnvironment
+    \label{#2}%
+    \begin{minted}[xleftmargin=18pt,
+                   mathescape,
+                   linenos,
+                   numbersep=5pt,
+                   bgcolor=codebg,
+                   autogobble,
+                   %frame=lines,
+                   %framesep=2mm,
+                   fontsize=\tiny]{#1}%
+}
+{%
+    \end{minted}
+    \vspace{-15pt}%
+}
+
+\setbeamerfont{footnote}{size=\tiny}
