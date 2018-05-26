@@ -1,0 +1,43 @@
+\ifx\notes\undefined
+    \providecommand{\notesroot}{../../..}
+    \providecommand{\demoroot}{.}
+
+    \title{强化学习}
+    \author{Donald Cheung\\jianzhang9102@gmail.com}
+    \date{\today\footnote{文档编写开始于2017年11月11日}}
+
+    \input{\notesroot/head}
+\else
+    \providecommand{\demoroot}{\notesroot/tex/template/book}
+\fi
+
+\chapter{强化学习}
+
+\section{Q-Learning}
+
+\begin{figure}[ht]
+    \centering
+    %\includegraphics[height=7cm]{\demoroot/images/mcts_approach.jpg}
+    \label{fig:mcts_approach}
+\end{figure}
+
+\begin{algorithm}
+    \SetKwInOut{Input}{Input}
+    \SetKwInOut{Output}{Output}
+
+    \underline{function Euclid} $(a,b)$\;
+    \Input{Two nonnegative integers $a$ and $b$}
+    \Output{$\gcd(a,b)$}
+    \eIf{$b=0$}
+      {
+        return $a$\;
+      }
+      {
+        return Euclid$(b,a\mod b)$\;
+      }
+    \caption{Euclid's algorithm for finding the greatest common divisor of two nonnegative integers}
+\end{algorithm}
+
+\ifx\notes\undefined
+    \input{\notesroot/tail}
+\fi

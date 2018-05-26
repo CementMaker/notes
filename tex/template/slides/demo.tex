@@ -57,24 +57,28 @@
 
 \end{frame}
 
-\begin{frame}
+
+\begin{frame}[fragile]
 \frametitle{A Frame}
 \framesubtitle{Bullet points}
-\begin{itemize}
-\item First thing
-	\begin{itemize}
-	\item small point
-	\item fine print
-	\end{itemize}
-\item Second thing
-	\begin{enumerate}
-	\item point 1
-	\end{enumerate}
-\item Third thing
-	\begin{description}
-	\item[Research] the scientific pursuit for knowledge
-	\end{description}
-\end{itemize}
+\scalebox{.7}{
+  \begin{algorithm}[H]
+    \SetKwInOut{Input}{Input}
+    \SetKwInOut{Output}{Output}
+
+    \underline{function Euclid} $(a,b)$\;
+    \Input{Two nonnegative integers $a$ and $b$}
+    \Output{$\gcd(a,b)$}
+    \eIf{$b=0$}
+      {
+        return $a$\;
+      }
+      {
+        return Euclid$(b,a\mod b)$\;
+      }
+    \caption{Euclid's algorithm for finding the greatest common divisor of two nonnegative integers}
+  \end{algorithm}
+}
 \end{frame}
 
 \begin{frame}
