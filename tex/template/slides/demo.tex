@@ -4,7 +4,7 @@
 \title{Recurrent Neural Network}
 \subtitle{Yet Another Grassroot Effort}
 \author{Ryan}
-\date{\today}
+\date{\today\footnote{文档编写开始于2018年5月26日}}
 \institute{{解惑者}\\\url{http://www.jiehuozhe.com/}}
 
 \begin{document}
@@ -13,8 +13,50 @@
 \titlepage
 \end{frame}
 
-
 \section{背景介绍}
+\begin{frame}[fragile]
+\frametitle{A Frame}
+\framesubtitle{Bullet points \footnotesize}
+
+\begin{itemize}
+\item \begin{minipage}{0.5\textwidth}
+        \begin{jcode}{python}{code:rl}
+            import numpy as np
+            import pylab as pl
+       
+            def f_x(x):
+              return np.exp(x)+x**2-5*x
+       
+            def approx_f(x):
+              return 1 -4*x +3./2*x**2
+        \end{jcode}
+      \end{minipage}
+
+\item \begin{jcode}{python}{code:rl}
+        xvals = np.arange(-4,4,0.1)
+        fx_vals = [f_x(x) for x in xvals]
+        approx_vals = [approx_f(x) for x in xvals]
+   
+        pl.plot(xvals,fx_vals)
+        pl.plot(xvals,approx_vals)
+   
+        pl.show()
+      \end{jcode}
+
+\item First thing
+	\begin{itemize}
+	\item small point
+	\item fine print
+	\end{itemize}
+
+\item Second thing
+	\begin{enumerate}
+	\item point 1
+	\end{enumerate}
+\end{itemize}
+
+\end{frame}
+
 \begin{frame}
 \frametitle{A Frame}
 \framesubtitle{Bullet points}
@@ -32,11 +74,6 @@
 	\begin{description}
 	\item[Research] the scientific pursuit for knowledge
 	\end{description}
-\item Third thing
-	\begin{description}
-	\item[Research] the scientific pursuit for knowledge
-	\end{description}
-
 \end{itemize}
 \end{frame}
 
@@ -86,10 +123,6 @@ Something evil this way comes.
 \end{exampleblock}
 
 \end{frame}
-
-
-
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % For every picture that defines or uses external nodes, you'll have to
