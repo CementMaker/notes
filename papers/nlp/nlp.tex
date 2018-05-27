@@ -1,6 +1,6 @@
 \ifx\papersnotes\undefined
     \providecommand{\notesroot}{../..}
-    \providecommand{\papersroot}{.}
+    \providecommand{\nlppapersroot}{.}
 
     \title{自然语言处理}
     \author{Donald Cheung\\jianzhang9102@gmail.com}
@@ -8,16 +8,27 @@
 
     \input{\notesroot/head}
 \else
-    \providecommand{\papersroot}{\papersroot/nlp}
+    \providecommand{\nlppapersroot}{\papersroot/nlp}
 \fi
 
 \chapter{自然语言处理}
 
 \section{句对匹配}
 
-\subsection{A Decomposable Attention Model for Natural Language Inference}
+\subsection{A Decomposable Attention Model for Natural Language Inference \cite{Parikh:2016aa}}
+
+\href{https://zhuanlan.zhihu.com/p/26237357}{《A Decomposable Attention Model for Natural Language Inference》阅读笔记}
 
 
+\href{https://arxiv.org/pdf/1609.06038.pdf}{Enhanced LSTM for Natural Language Inference}
+
+\begin{enumerate}
+    \item \url{https://github.com/erickrf/multiffn-nli}
+
+        论文的实现。
+
+    \item \url{https://github.com/siarez/sentence_pair_classifier}（效果并不太好）
+\end{enumerate}
 
 \ifx\papersnotes\undefined
     \input{\notesroot/tail}
