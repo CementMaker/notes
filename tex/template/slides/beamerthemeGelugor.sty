@@ -8,9 +8,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \useoutertheme[width=.15\paperwidth]{sidebar}
 \setlength{\beamer@headheight}{.115\paperheight}
-\pgfdeclareimage[width=.1\paperwidth]{small-logo}{\slidestemplateroot/tpl-resources/usmlg}
-\pgfdeclareimage[width=.33\paperwidth]{type-logo}{\slidestemplateroot/tpl-resources/logotype}
-\pgfdeclareimage[width=.33\paperwidth]{white-logo}{\slidestemplateroot/tpl-resources/JHZ-white}
+\pgfdeclareimage[width=.1\paperwidth]{small-logo}{\slidestemplateroot/tpl-resources/single.png}
+\pgfdeclareimage[width=.23\paperwidth]{type-logo}{\slidestemplateroot/tpl-resources/logo.png}
+\pgfdeclareimage[width=.43\paperwidth]{white-logo}{\slidestemplateroot/tpl-resources/logo.png}
 \pgfdeclareimage[width=.33\paperwidth]{large-corner}{\slidestemplateroot/tpl-resources/large-corner}
 \pgfdeclareimage[height=\beamer@headheight]{small-corner}{\slidestemplateroot/tpl-resources/small-corner}
 \setbeamertemplate{sidebar left}{%
@@ -19,7 +19,7 @@
 }
 
 \setbeamertemplate{footline}[text line]{%
-\insertshortauthor\strut\hfill\insertshorttitle\hfill\insertshortdate\hspace{1em}\insertframenumber/\inserttotalframenumber}
+\insertshortauthor{@解惑者学院}\strut\hfill\insertshorttitle\hfill\insertshortdate\hspace{1em}\insertframenumber/\inserttotalframenumber}
 
 \addtobeamertemplate{frametitle}{}{%
 \begin{pgfpicture}
@@ -73,7 +73,7 @@
 \pgfusepath{fill}
 
 % Logo
-\pgftext[at=\pgfpoint{.029\paperwidth}{-.185\paperheight},left,base]{\pgfuseimage{type-logo}}
+\pgftext[at=\pgfpoint{.010\paperwidth}{-.175\paperheight},left,base]{\pgfuseimage{type-logo}}
 
 % Purple short bar on left
 \pgfpathrectanglecorners{\pgfpoint{0pt}{-.19\paperheight}}{\pgfpoint{.15\paperwidth}{-.24\paperheight}}

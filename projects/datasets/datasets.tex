@@ -1,0 +1,74 @@
+\ifx\projectsnotes\undefined
+    \providecommand{\notesroot}{../..}
+    \providecommand{\datasetsroot}{.}
+
+    \title{机器学习数据集}
+    \author{Donald Cheung\\jianzhang9102@gmail.com}
+    \date{\today\footnote{文档编写开始于2018年5月24日}}
+
+    \input{\notesroot/head}
+\else
+    \providecommand{\datasetsroot}{\projectsroot/datasets}
+\fi
+
+\chapter{机器学习数据集}
+
+\section{自然语言处理}
+
+\subsection{SNLI数据集}
+
+\subsubsection{SNLI}
+SNLI，全称 Stanford Natural Language Inference
+\footnote{SNLI 官方地址：\url{https://nlp.stanford.edu/projects/snli/}}，
+数据集的详细信息可参考论文 \cite{Bowman:2015aa}。
+
+\begin{table}[!htb]
+  \centering
+  \begin{tabular}{|Sl|c|l|}
+  \hline
+  \tableheadcolor \textbf{Text} & \textbf{Judgments} & \textbf{Hypothesis} \\ \hline
+  A man inspects the uniform of a figure & contradiction & The man is sleeping \\
+  in some East Asian country.            &   C C C C C   & \\ \hline
+
+  An older and younger man smiling. &  neutral  & Two men are smiling and laughing at \\
+                                    & N N E N N & the cats playing on the floor. \\ \hline
+
+  A black race car starts up in front of a & contradiction & A man is driving down a lonely road. \\
+  crowd of people.                         &   C C C C C   & \\ \hline
+
+  A soccer game with multiple males & entailment & Some men are playing a sport. \\
+  playing.                          &  E E E E E & \\ \hline
+
+  A smiling costumed woman is holding &  neutral  & A happy woman in a fairy costume \\
+  an umbrella.                        & N N E C N & holds an umbrella. \\ \hline
+  \end{tabular}
+  \caption{SNLI数据集示例}
+  \label{table:SNLI-sample}
+\end{table}
+
+\subsubsection{MultiNLI}
+MultiNLI: The Multi-Genre Natural Language Inference (MultiNLI) corpus
+
+\href{https://www.nyu.edu/projects/bowman/multinli/}{MultiNLI 官方地址}
+
+
+\subsection{机器阅读理解数据集NarrativeQA}
+
+\section{计算机视觉}
+
+\subsection{手写体识别}
+
+\subsection{SVHN}
+
+\href{http://ufldl.stanford.edu/housenumbers/}{The Street View House Numbers (SVHN) Dataset}
+
+
+
+\section{待整理}
+\begin{enumerate}
+  \item \href{https://blog.csdn.net/CoderPai/article/details/69662230}{最新的二十个有趣的深度学习数据集}
+\end{enumerate}
+
+\ifx\projectsnotes\undefined
+    \input{\notesroot/tail}
+\fi
